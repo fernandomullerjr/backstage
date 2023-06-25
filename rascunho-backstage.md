@@ -1,6 +1,13 @@
 
 
-## Git
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+##  Git
 
 git status
 eval $(ssh-agent -s)
@@ -14,6 +21,13 @@ git status
 
 
 
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
 ## Dia 24/06/2023
 
 - Iniciando repositório
@@ -651,9 +665,118 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage$
 ~~~~
 
 
+
+
+
+
+
+- Tratar erro no Deployment do Backstage, 
+- Erros
+
+~~~~bash
+Events:
+  Type     Reason     Age                 From               Message
+  ----     ------     ----                ----               -------
+  Normal   Scheduled  15m                 default-scheduler  Successfully assigned backstage/backstage-764dcdfc4b-vnftj to ip-10-0-1-24.ec2.internal
+  Normal   Pulling    14m (x4 over 15m)   kubelet            Pulling image "backstage:1.0.0"
+  Warning  Failed     14m (x4 over 15m)   kubelet            Failed to pull image "backstage:1.0.0": rpc error: code = Unknown desc = Error response from daemon: pull access denied for backstage, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+  Warning  Failed     14m (x4 over 15m)   kubelet            Error: ErrImagePull
+  Warning  Failed     13m (x6 over 15m)   kubelet            Error: ImagePullBackOff
+  Normal   BackOff    24s (x67 over 15m)  kubelet            Back-off pulling image "backstage:1.0.0"
+fernando@debian10x64:~$
+
+~~~~
+
+
+
+- Ajustando imagem no Deployment do Backstage, para esta:
+image: socialchorus/backstage:latest
+
+- FONTE:
+https://hub.docker.com/layers/socialchorus/backstage/latest/images/sha256-449892f5da326734009967bfe2759a631f71c1c2b02da6ae0424601b09075641?context=explore
+<https://hub.docker.com/layers/socialchorus/backstage/latest/images/sha256-449892f5da326734009967bfe2759a631f71c1c2b02da6ae0424601b09075641?context=explore>
+
+- Ajustando
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+
+~~~~bash
+
+fernando@debian10x64:~$ kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+deployment.apps "backstage" deleted
+fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+deployment.apps/backstage created
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS              RESTARTS   AGE
+backstage-7894c44d6b-j8c8h   0/1     ContainerCreating   0          6s
+postgres-77f59b67df-7wffm    1/1     Running             0          75m
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+
+~~~~
+
+
+
+
+- Pod do Backstage subiu agora:
+
+~~~~bash
+fernando@debian10x64:~$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS    RESTARTS   AGE
+backstage-7894c44d6b-j8c8h   1/1     Running   0          72s
+postgres-77f59b67df-7wffm    1/1     Running   0          76m
+fernando@debian10x64:~$ date
+Sat 24 Jun 2023 10:17:17 PM -03
+fernando@debian10x64:~$
+~~~~
+
+
+
+- Porém o Pod usa uma porta diferente no "app-config.yaml":
+
+~~~~bash
+
+fernando@debian10x64:~$ kubectl exec -ti backstage-7894c44d6b-j8c8h -n backstage sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+#
+#
+#
+#
+# pwd
+/app
+# ls
+app-config.yaml  node_modules  package.json  packages  yarn.lock
+# cat app
+cat: app: No such file or directory
+# cat app-config.yaml
+app:
+  title: FirstUp Backstage App
+  baseUrl: http://localhost:3000
+  datadogRum:
+    clientToken: pub75b925cfabe46b0dc92edcd5b0d88a43
+    applicationId: 935994e9-cbc0-4cba-94be-eb672d67a566
+    site: datadoghq.com
+
+
+~~~~
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
 ## PENDENTE
+
+- Tratar erro no Deployment do Backstage, com imagem Dockerhub publica foi(pod ficou running), mas service não vai ficar OK, porque o "app-config.yaml" usa porta diferente do Container no k8s.
+- Buildar imagem Docker personalizada, contendo um "app-config.yaml" personalizado, usando a porta do container do Deployment do Backstage(7007).
 - Ver sobre build de imagem Docker personalizada para o Backstage
     https://backstage.io/docs/deployment/docker/
     avaliar se o build da imagem Docker vai ser via:
     Host Build, ou Multi-stage Build, ou Separate Frontend
-a
+- Tratar erros do build da imagem Docker, arquivos locais.
