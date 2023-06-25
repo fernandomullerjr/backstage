@@ -400,3 +400,175 @@ postgres   ClusterIP   172.20.66.5   <none>        5432/TCP   12s
 fernando@debian10x64:~$
 
 ~~~~
+
+
+
+
+
+
+
+
+Creating the Backstage instance
+
+Now that we have PostgreSQL up and ready to store data, we can create the Backstage instance. This follows similar steps as the PostgreSQL deployment.
+Creating a Backstage secret
+
+For any Backstage configuration secrets, such as authorization tokens, we can create a similar Kubernetes Secret as we did for PostgreSQL, remembering to base64 encode the values:
+
+~~~~yaml
+# kubernetes/backstage-secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backstage-secrets
+  namespace: backstage
+type: Opaque
+data:
+  GITHUB_TOKEN: VG9rZW5Ub2tlblRva2VuVG9rZW5NYWxrb3ZpY2hUb2tlbg==
+~~~~
+
+Apply the secret to the Kubernetes cluster:
+
+~~~~bash
+$ kubectl apply -f kubernetes/backstage-secrets.yaml
+secret/backstage-secrets created
+~~~~
+
+- Criando token no Github
+backstage-lab
+- Efetuado base64
+
+- Aplicando
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+
+~~~~bash
+
+fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+secret/backstage-secrets created
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ kubectl get secret -n backstage
+NAME                  TYPE                                  DATA   AGE
+backstage-secrets     Opaque                                1      10s
+default-token-phxh8   kubernetes.io/service-account-token   3      44m
+postgres-secrets      Opaque                                2      30m
+fernando@debian10x64:~$
+
+~~~~
+
+
+
+
+
+
+
+
+
+## Creating a Backstage deployment
+
+To create the Backstage deployment, first create a Docker image. We'll use this image to create a Kubernetes deployment. For this example, we'll use the standard host build with the frontend bundled and served from the backend.
+
+First, create a Kubernetes Deployment descriptor:
+
+~~~~yaml
+# kubernetes/backstage.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage
+  template:
+    metadata:
+      labels:
+        app: backstage
+    spec:
+      containers:
+        - name: backstage
+          image: backstage:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 7007
+          envFrom:
+            - secretRef:
+                name: postgres-secrets
+            - secretRef:
+                name: backstage-secrets
+# Uncomment if health checks are enabled in your app:
+# https://backstage.io/docs/plugins/observability#health-checks
+#          readinessProbe:
+#            httpGet:
+#              port: 7007
+#              path: /healthcheck
+#          livenessProbe:
+#            httpGet:
+#              port: 7007
+#              path: /healthcheck
+~~~~
+
+For production deployments, the image reference will usually be a full URL to a repository on a container registry (for example, ECR on AWS).
+
+For testing locally with minikube, you can point the local Docker daemon to the minikube internal Docker registry and then rebuild the image to install it:
+
+~~~~bash
+$ eval $(minikube docker-env)
+$ yarn build-image --tag backstage:1.0.0
+~~~~
+
+There is no special wiring needed to access the PostgreSQL service. Since it's running on the same cluster, Kubernetes will inject POSTGRES_SERVICE_HOST and POSTGRES_SERVICE_PORT environment variables into our Backstage container. These can be used in the Backstage app-config.yaml along with the secrets:
+
+~~~~yaml
+backend:
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_SERVICE_HOST}
+      port: ${POSTGRES_SERVICE_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+~~~~
+
+Make sure to rebuild the Docker image after applying app-config.yaml changes.
+
+Apply this Deployment to the Kubernetes cluster:
+
+~~~~bash
+$ kubectl apply -f kubernetes/backstage.yaml
+deployment.apps/backstage created
+
+$ kubectl get deployments --namespace=backstage
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+backstage   1/1     1            1           1m
+postgres    1/1     1            1           10m
+
+$ kubectl get pods --namespace=backstage
+NAME                                 READY   STATUS    RESTARTS   AGE
+backstage-54bfcd6476-n2jkm           1/1     Running   0          58s
+postgres-56c86b8bbc-66pt2            1/1     Running   0          9m
+~~~~
+
+Beautiful! 🎉 The deployment and pod are running in the cluster. If you run into any trouble, check the container logs from the pod:
+
+~~~~bash
+# -f to tail, <pod> -c <container>
+$ kubectl logs --namespace=backstage -f backstage-54bfcd6476-n2jkm -c backstage
+~~~~
+
+
+
+
+
+
+
+
+## PENDENTE
+- Ver sobre build de imagem Docker personalizada para o Backstage
+    https://backstage.io/docs/deployment/docker/
+    avaliar se o build da imagem Docker vai ser via:
+    Host Build, ou Multi-stage Build, ou Separate Frontend
+a
