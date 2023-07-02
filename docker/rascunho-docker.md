@@ -843,4 +843,95 @@ RUN npm install -g express
 
 - Ajustando
 
+adicionando
 RUN mkdir -p /app
+
+DE:
+COPY ./app/package*.json ./
+PARA:
+COPY ./app/package*.json ./app
+
+
+
+- ERRO
+
+~~~~BASH
+---> Running in 7b01e830c844
+npm ERR! code ENOENT
+npm ERR! syscall open
+npm ERR! path /app/package.json
+npm ERR! errno -2
+npm ERR! enoent ENOENT: no such file or directory, open '/app/package.json'
+npm ERR! enoent This is related to npm not being able to find a file.
+npm ERR! enoent 
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2023-07-02T17_34_30_302Z-debug-0.log
+~~~~
+
+
+
+
+
+
+
+
+- Ajustando.
+
+- Docker-compose
+  # Anonymous volume:
+  - /usr/src/app/node_modules
+
+- Dockerfile
+COPY ./app ./app
+
+
+docker compose build --no-cache
+docker compose up -d
+
+
+- ERRO
+
+~~~~BASH
+npm ERR! code ENOENT
+npm ERR! syscall open
+npm ERR! path /app/package.json
+npm ERR! errno -2
+npm ERR! enoent ENOENT: no such file or directory, open '/app/package.json'
+npm ERR! enoent This is related to npm not being able to find a file.
+npm ERR! enoent 
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2023-07-02T17_40_13_508Z-debug-0.log
+The command '/bin/sh -c npm install' returned a non-zero code: 254
+ERROR: Service 'app' failed to build : Build failed
+~~~~
+
+
+- Criando dockerignore
+/home/fernando/cursos/idp-devportal/backstage/docker/docker-compose/.dockerignore
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Subir docker-compose com aplicação NodeJS de exemplo.
+      Seguir tutorial:
+      https://www.digitalocean.com/community/tutorials/containerizing-a-node-js-application-for-development-with-docker-compose
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
