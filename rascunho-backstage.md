@@ -781,4 +781,5 @@ app:
     avaliar se o build da imagem Docker vai ser via:
     Host Build, ou Multi-stage Build, ou Separate Frontend
 - Tratar erros do build da imagem Docker, arquivos locais.
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
