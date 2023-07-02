@@ -417,8 +417,32 @@ https://github.com/backstage/backstage/issues/18058
 # ####################################################################################################################################################
 ## PENDENTE
 
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
 - TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
         https://backstage.io/docs/getting-started/create-an-app/
         issue:
         https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
 - Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 02/07/2023
+
+
+
+
+https://hub.docker.com/layers/library/node/16-bullseye-slim/images/sha256-4126251961c4619854e56de80e352b8962443d4d32d5a206ac2ed82b5592f5d1?context=explore
