@@ -1,0 +1,14 @@
+{
+    "name": "exemplo-nodejs",
+    "version": "1.0.0",
+    "description": "Exemplo de aplicação Node.js",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "author": "Seu Nome",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}
