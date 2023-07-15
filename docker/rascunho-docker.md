@@ -1435,3 +1435,34 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
 <http://192.168.0.110:3000/>
 
 Olá, mundo!
+
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage.
+- Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
