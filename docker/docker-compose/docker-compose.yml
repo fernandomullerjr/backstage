@@ -1,10 +1,10 @@
 version: '3'
 services:
-  app:
+  app-teste-fusionist:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: node_app
+      context: ./app
+      dockerfile: ./Dockerfile
+    container_name: node_app_teste
     restart: always
     ports:
       - 3000:3000

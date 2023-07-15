@@ -1,6 +1,27 @@
 
 
 
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+##  Git - Docker image
+
+git status
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git add -u
+git reset -- manifestos-k8s/backstage-secrets.yaml
+git commit -m "Backstage lab, buildando Docker image."
+git push
+git status
+
+
+
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -921,6 +942,7 @@ ERROR: Service 'app' failed to build : Build failed
 # ####################################################################################################################################################
 ## PENDENTE
 
+- Idéia é subir um app em NodeJS de exemplo, para pegar a estrutura. Depois, fazer uma imagem/Dockerfile/Ou-via-commit, um build do Backstage usando o NodeJS do Container ou do Build via Dockerfile.
 - Subir docker-compose com aplicação NodeJS de exemplo.
       Seguir tutorial:
       https://www.digitalocean.com/community/tutorials/containerizing-a-node-js-application-for-development-with-docker-compose
@@ -935,3 +957,255 @@ ERROR: Service 'app' failed to build : Build failed
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 15/07/2023
+
+- Idéia é subir um app em NodeJS de exemplo, para pegar a estrutura. Depois, fazer uma imagem/Dockerfile/Ou-via-commit, um build do Backstage usando o NodeJS do Container ou do Build via Dockerfile.
+
+- Testando
+docker-compose build --no-cache
+
+~~~~bash
+ge.
+    -q, --quiet             Don't print anything to STDOUT
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose build --no-cache
+Building app-teste-fusionist
+Sending build context to Docker daemon  6.144kB
+Step 1/9 : FROM node:16-bullseye-slim
+ ---> ac00507796e5
+Step 2/9 : RUN mkdir -p /app
+ ---> Running in 881edb6b8d9b
+Removing intermediate container 881edb6b8d9b
+ ---> bd732f72fbe2
+Step 3/9 : WORKDIR /app
+ ---> Running in 656f88f9c1e1
+Removing intermediate container 656f88f9c1e1
+ ---> a3343ab627d3
+Step 4/9 : COPY ./app/package*.json ./app
+ ---> 5be9623ed79f
+Step 5/9 : RUN npm install
+ ---> Running in 200372c67c06
+npm ERR! code ENOENT
+npm ERR! syscall open
+npm ERR! path /app/package.json
+npm ERR! errno -2
+npm ERR! enoent ENOENT: no such file or directory, open '/app/package.json'
+npm ERR! enoent This is related to npm not being able to find a file.
+npm ERR! enoent 
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2023-07-15T22_09_23_409Z-debug-0.log
+The command '/bin/sh -c npm install' returned a non-zero code: 254
+ERROR: Service 'app-teste-fusionist' failed to build : Build failed
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+~~~~
+
+
+
+- Ajustando estrutura de pastas e Dockerfile.
+
+- Alterando Dockerfile
+
+DE:
+
+~~~~DOCKERFILE
+# Use a imagem base do Node.js
+#FROM node:16-bullseye-slim
+# Create app directory
+RUN mkdir -p /app
+
+# Define o diretório de trabalho no contêiner
+WORKDIR /app
+
+# Copia o arquivo package.json e package-lock.json para o diretório de trabalho
+COPY ./app/package*.json ./app
+
+# Instala as dependências do Node.js
+RUN npm install
+
+# Instala o Express globalmente
+RUN npm install -g express
+
+# Copia todos os arquivos do projeto para o diretório de trabalho
+COPY ./app ./app
+
+# Expõe a porta em que a aplicação está escutando
+EXPOSE 3000
+
+# Define o comando para iniciar a aplicação
+CMD [ "npm", "start" ]
+
+~~~~
+
+
+
+PARA:
+
+~~~~DOCKERFILE
+FROM node:14.15.4
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "app.js"]
+~~~~
+
+
+
+- Novo docker-compose.
+- Ajustando o context do build e o caminho do Dockerfile:
+
+~~~~YAML
+version: '3'
+services:
+  app-teste-fusionist:
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    container_name: node_app_teste
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./app:/app
+      # Anonymous volume:
+      - /app/node_modules
+~~~~
+
+
+
+- Agora o build passou!
+- Resultado:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose build --no-cache
+Building app-teste-fusionist
+Sending build context to Docker daemon   5.12kB
+Step 1/7 : FROM node:14.15.4
+ ---> 924763541c0c
+Step 2/7 : WORKDIR /app
+ ---> Running in abb964c05907
+Removing intermediate container abb964c05907
+ ---> eabca08827b6
+Step 3/7 : COPY package*.json ./
+ ---> bd2e23961f27
+Step 4/7 : RUN npm install
+ ---> Running in 8e3e9c67b73f
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN exemplo-nodejs@1.0.0 No repository field.
+
+added 58 packages from 42 contributors and audited 58 packages in 3.424s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+Removing intermediate container 8e3e9c67b73f
+ ---> 9fc7224fab4c
+Step 5/7 : COPY . .
+ ---> 6871ada29dc8
+Step 6/7 : EXPOSE 3000
+ ---> Running in cff6ac8cc166
+Removing intermediate container cff6ac8cc166
+ ---> 146378684a63
+Step 7/7 : CMD ["node", "app.js"]
+ ---> Running in 95918bb09875
+Removing intermediate container 95918bb09875
+ ---> 99bdd7cc751e
+Successfully built 99bdd7cc751e
+Successfully tagged docker-compose_app-teste-fusionist:latest
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+~~~~
+
+
+
+
+- Imagem ficou pesada:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker image ls
+REPOSITORY                                       TAG                IMAGE ID       CREATED          SIZE
+docker-compose_app-teste-fusionist               latest             99bdd7cc751e   37 seconds ago   947MB
+
+~~~~
+
+
+
+- Testando imagem slim:
+
+FROM node:16-bullseye-slim
+
+
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose build --no-cache
+Building app-teste-fusionist
+Sending build context to Docker daemon   5.12kB
+Step 1/7 : FROM node:16-bullseye-slim
+ ---> ac00507796e5
+Step 2/7 : WORKDIR /app
+ ---> Running in b76572123ebe
+Removing intermediate container b76572123ebe
+ ---> ce8bd527874a
+Step 3/7 : COPY package*.json ./
+ ---> 97c693f949d3
+Step 4/7 : RUN npm install
+ ---> Running in 6c185572e623
+
+added 58 packages, and audited 59 packages in 5s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice 
+npm notice New major version of npm available! 8.19.4 -> 9.8.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v9.8.0>
+npm notice Run `npm install -g npm@9.8.0` to update!
+npm notice 
+Removing intermediate container 6c185572e623
+ ---> 28a2d69e5ac1
+Step 5/7 : COPY . .
+ ---> 119f580b5dfe
+Step 6/7 : EXPOSE 3000
+ ---> Running in caa9384785ca
+Removing intermediate container caa9384785ca
+ ---> fe4e219df339
+Step 7/7 : CMD ["node", "app.js"]
+ ---> Running in 4ff610647d63
+Removing intermediate container 4ff610647d63
+ ---> af651a0e28c3
+Successfully built af651a0e28c3
+Successfully tagged docker-compose_app-teste-fusionist:latest
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+
+
+
+
+- Só este ajuste deixou a imagem 10x mais leve:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker image ls | head
+REPOSITORY                                       TAG                IMAGE ID       CREATED          SIZE
+docker-compose_app-teste-fusionist               latest             af651a0e28c3   13 seconds ago   197MB
+
+~~~~
