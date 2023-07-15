@@ -1153,8 +1153,7 @@ docker-compose_app-teste-fusionist               latest             99bdd7cc751e
 FROM node:16-bullseye-slim
 
 
-
-
+~~~~bash
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose build --no-cache
 Building app-teste-fusionist
@@ -1196,7 +1195,7 @@ Removing intermediate container 4ff610647d63
 Successfully built af651a0e28c3
 Successfully tagged docker-compose_app-teste-fusionist:latest
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
-
+~~~~
 
 
 
@@ -1209,3 +1208,230 @@ REPOSITORY                                       TAG                IMAGE ID    
 docker-compose_app-teste-fusionist               latest             af651a0e28c3   13 seconds ago   197MB
 
 ~~~~
+
+
+
+
+
+- Subindo container
+
+- ERROS
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS                         PORTS     NAMES
+d6a42b163c44   docker-compose_app-teste-fusionist   "docker-entrypoint.s…"   40 seconds ago   Restarting (1) 5 seconds ago             node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+~~~~
+
+
+
+- Logs
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker logs node_app_teste 
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:22:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:22:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:22:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:22:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:22:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+node:internal/modules/cjs/loader:1031
+  throw err;
+  ^
+
+Error: Cannot find module '/app/app.js'
+    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1028:15)
+    at Function.Module._load (node:internal/modules/cjs/loader:873:27)
+~~~~
+
+
+
+
+- Ajustando Dockerfile
+apontando para index.js ao invés de app.js
+workdir de /app para / apenas
+
+- Testando
+  510  docker-compose build --no-cache
+  511  docker-compose up -d
+
+
+- Buildando:
+
+docker-compose build --no-cache
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose build --no-cache
+Building app-teste-fusionist
+Sending build context to Docker daemon   5.12kB
+Step 1/7 : FROM node:16-bullseye-slim
+ ---> ac00507796e5
+Step 2/7 : WORKDIR /
+ ---> Running in 8418f8a6224c
+Removing intermediate container 8418f8a6224c
+ ---> 2be5f0e36eed
+Step 3/7 : COPY package*.json ./
+ ---> c0e0e7ef1e1e
+Step 4/7 : RUN npm install
+ ---> Running in f2aff9e90603
+
+added 58 packages, and audited 59 packages in 5s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice 
+npm notice New major version of npm available! 8.19.4 -> 9.8.0
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v9.8.0>
+npm notice Run `npm install -g npm@9.8.0` to update!
+npm notice 
+Removing intermediate container f2aff9e90603
+ ---> c0b6772f5f62
+Step 5/7 : COPY . .
+ ---> eda0032c70b8
+Step 6/7 : EXPOSE 3000
+ ---> Running in c8fab4439aa0
+Removing intermediate container c8fab4439aa0
+ ---> a16ee8fdab36
+Step 7/7 : CMD ["node", "index.js"]
+ ---> Running in 696c47ff186f
+Removing intermediate container 696c47ff186f
+ ---> af2a7918abb4
+Successfully built af2a7918abb4
+Successfully tagged docker-compose_app-teste-fusionist:latest
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+
+~~~~
+
+
+
+- Subindo app:
+
+docker-compose up -d
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS                         PORTS     NAMES
+d6a42b163c44   af651a0e28c3   "docker-entrypoint.s…"   8 minutes ago   Restarting (1) 3 seconds ago             node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker rm node_app_teste
+Error response from daemon: You cannot remove a restarting container d6a42b163c4437646d1e4997463251327223f71e6f3593c06c796215db608d28. Stop the container before attempting removal or force remove
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker rm -f node_app_teste
+node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose up -d
+Creating node_app_teste ... done
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED         STATUS        PORTS                                       NAMES
+149d2b769492   docker-compose_app-teste-fusionist   "docker-entrypoint.s…"   3 seconds ago   Up 1 second   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+149d2b769492   docker-compose_app-teste-fusionist   "docker-entrypoint.s…"   6 seconds ago   Up 4 seconds   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ date
+Sat 15 Jul 2023 07:46:49 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ 
+
+~~~~
+
+
+
+- Validando
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker image ls | head
+REPOSITORY                                       TAG                IMAGE ID       CREATED              SIZE
+docker-compose_app-teste-fusionist               latest             af2a7918abb4   About a minute ago   197MB
+<none>                                           <none>             af651a0e28c3   22 minutes ago       197MB
+<none>                                           <none>             99bdd7cc751e   25 minutes ago       947MB
+<none>                                           <none>             5be9623ed79f   38 minutes ago       191MB
+<none>                                           <none>             8bfd83bc1c3b   13 days ago          191MB
+docker-compose_app                               latest             719552da5403   13 days ago          199MB
+<none>                                           <none>             0ed2058b33de   13 days ago          197MB
+<none>                                           <none>             ebbfacfb6308   13 days ago          197MB
+node                                             16-bullseye-slim   ac00507796e5   3 weeks ago          191MB
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ date
+Sat 15 Jul 2023 07:47:23 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ cat | curl http://192.168.0.110:3000/
+Olá, mundo!
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ date
+Sat 15 Jul 2023 07:47:38 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+~~~~
+
+
+
+- Abriu o endereço
+<http://192.168.0.110:3000/>
+
+Olá, mundo!
