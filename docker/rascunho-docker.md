@@ -1454,7 +1454,7 @@ Olá, mundo!
 # ####################################################################################################################################################
 ## PENDENTE
 
-- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage.
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage. Instalar o app do Backstage.
 - Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
 - Buildar o APP do Backstage com estrutura via Docker-compose.
 - TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
@@ -1466,3 +1466,365 @@ Olá, mundo!
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+- RETOMANDO INSTALAÇÃO DO APP
+
+https://backstage.io/docs/deployment/docker/
+<https://backstage.io/docs/deployment/docker/>
+
+This section assumes that an app has already been created with @backstage/create-app, in which the frontend is bundled and served from the backend. This is done using the @backstage/plugin-app-backend plugin, which also injects the frontend configuration into the app. This means that you only need to build and deploy a single container in a minimal setup of Backstage. If you wish to separate the serving of the frontend out from the backend, see the separate frontend topic below.
+
+Conforme a mensagem acima, é necessário criar o app antes, seguindo as instruções da página abaixo:
+https://backstage.io/docs/getting-started/create-an-app/
+<https://backstage.io/docs/getting-started/create-an-app/>
+
+
+## INSTALANDO APP - BACKSTAGE
+
+- Instalando app:
+npx @backstage/create-app@latest
+
+
+
+
+
+- 
+
+~~~~BASH
+fernando@debian10x64:~$ docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+149d2b769492   docker-compose_app-teste-fusionist   "docker-entrypoint.s…"   17 minutes ago   Up 17 minutes   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node_app_teste
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ docker container exec -ti node_app_teste bash
+root@149d2b769492:/#
+root@149d2b769492:/#
+root@149d2b769492:/# ls
+app  bin  boot  dev  etc  home  index.js  lib  lib64  media  mnt  node_modules  opt  package-lock.json  package.json  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@149d2b769492:/# ls app/
+Dockerfile  index.js  node_modules  package.json
+root@149d2b769492:/# npx @backstage/create-app@latest
+Need to install the following packages:
+  @backstage/create-app@0.5.2
+Ok to proceed? (y) y
+? Enter a name for the app [required] meu-backstage-teste
+
+Creating the app...
+
+ Checking if the directory is available:
+  checking      meu-backstage-teste ✔
+
+ Creating a temporary app directory:
+  creating      temporary directory ✔
+
+ Preparing files:
+  copying       .dockerignore ✔
+  templating    .eslintrc.js.hbs ✔
+  templating    .gitignore.hbs ✔
+  copying       .prettierignore ✔
+  copying       README.md ✔
+  copying       app-config.local.yaml ✔
+  copying       app-config.production.yaml ✔
+  templating    app-config.yaml.hbs ✔
+  templating    backstage.json.hbs ✔
+  templating    catalog-info.yaml.hbs ✔
+  copying       lerna.json ✔
+  templating    package.json.hbs ✔
+  copying       tsconfig.json ✔
+  copying       yarn.lock ✔
+  copying       README.md ✔
+  copying       entities.yaml ✔
+  copying       org.yaml ✔
+  copying       template.yaml ✔
+  copying       catalog-info.yaml ✔
+  copying       index.js ✔
+  copying       package.json ✔
+  copying       README.md ✔
+  templating    .eslintrc.js.hbs ✔
+  copying       Dockerfile ✔
+  copying       README.md ✔
+  templating    package.json.hbs ✔
+  copying       index.test.ts ✔
+  copying       types.ts ✔
+  copying       index.ts ✔
+  copying       app.ts ✔
+  copying       auth.ts ✔
+  copying       catalog.ts ✔
+  copying       proxy.ts ✔
+  copying       scaffolder.ts ✔
+  copying       techdocs.ts ✔
+  templating    search.ts.hbs ✔
+  copying       .eslintignore ✔
+  templating    .eslintrc.js.hbs ✔
+  copying       cypress.json ✔
+  templating    package.json.hbs ✔
+  copying       android-chrome-192x192.png ✔
+  copying       favicon-16x16.png ✔
+  copying       apple-touch-icon.png ✔
+  copying       favicon-32x32.png ✔
+  copying       index.html ✔
+  copying       favicon.ico ✔
+  copying       manifest.json ✔
+  copying       safari-pinned-tab.svg ✔
+  copying       robots.txt ✔
+  copying       .eslintrc.json ✔
+  copying       app.js ✔
+  copying       App.test.tsx ✔
+  copying       App.tsx ✔
+  copying       apis.ts ✔
+  copying       index.tsx ✔
+  copying       setupTests.ts ✔
+  copying       LogoFull.tsx ✔
+  copying       LogoIcon.tsx ✔
+  copying       Root.tsx ✔
+  copying       index.ts ✔
+  copying       EntityPage.tsx ✔
+  copying       SearchPage.tsx ✔
+
+ Moving to final location:
+  moving        meu-backstage-teste ✔
+
+ Installing dependencies:
+  determining   yarn version ✔
+  executing     yarn install ◜ warning @backstage/cli > fork-ts-checker-webpack-plugin > memfs@3.6.0: this will be v4
+warning @backstage/cli > react-dev-utils > fork-ts-checker-webpack-plugin > memfs@3.6.0: this will be v4
+warning @backstage/cli > webpack-dev-server > webpack-dev-middleware > memfs@3.6.0: this will be v4
+warning @backstage/cli > rollup-plugin-dts > magic-string > sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec instead
+warning @backstage/cli > @svgr/plugin-svgo > svgo > stable@0.1.8: Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility
+warning lerna > @lerna/bootstrap > read-package-tree@5.3.1: The functionality that this package provided is now in @npmcli/arborist
+warning lerna > @lerna/version > temp-write > uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+warning lerna > @lerna/bootstrap > read-package-tree > readdir-scoped-modules@1.1.0: This functionality has been moved to @npmcli/fs
+warning lerna > @lerna/bootstrap > read-package-tree > readdir-scoped-modules > debuglog@1.0.1: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
+warning "workspace-aggregator-53f68cd8-4af1-43f6-80c8-bc401f29160f > app > @backstage/plugin-scaffolder > @uiw/react-codemirror > codemirror > @codemirror/autocomplete@6.8.1" has unmet peer dependency "@lezer/common@^1.0.0".
+warning Workspaces can only be enabled in private projects.
+warning Workspaces can only be enabled in private projects.
+warning Workspaces can only be enabled in private projects.
+error An unexpected error occurred: "ENOSPC: no space left on device, copyfile '/usr/local/share/.cache/yarn/v6/npm-eslint-visitor-keys-3.4.1-c22c48f48942d08ca824cc526211ae400478a994-integrity/node_modules/eslint-visitor-keys/dist/eslint-visitor-keys.d.cts' -> '/meu-backstage-teste/node_modules/eslint-visitor-keys/dist/eslint-visitor-keys.d.cts'".
+yarn install v1.22.19
+[1/5] Validating package.json...
+[2/5] Resolving packages...
+[3/5] Fetching packages...
+[4/5] Linking dependencies...
+info If you think this is a bug, please open a bug report with the information provided in "/meu-backstage-teste/yarn-error.log".
+info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this command.
+  executing     yarn install ✖
+
+Error: Could not execute command yarn install
+
+It seems that something went wrong when creating the app 🤔
+
+🔥  Failed to create app!
+
+root@149d2b769492:/#
+
+~~~~
+
+
+
+
+- Ocorreu erro, devido espaço em disco.
+
+- Verificando disco
+
+~~~~BASH
+
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ df -h
+Filesystem                        Size  Used Avail Use% Mounted on
+udev                              4.8G     0  4.8G   0% /dev
+tmpfs                             983M   18M  965M   2% /run
+/dev/mapper/debian10x64--vg-root   58G   58G     0 100% /
+tmpfs                             4.8G     0  4.8G   0% /dev/shm
+tmpfs                             5.0M     0  5.0M   0% /run/lock
+tmpfs                             4.8G     0  4.8G   0% /sys/fs/cgroup
+/dev/loop1                        119M  119M     0 100% /snap/core/15511
+/dev/loop3                        228M  228M     0 100% /snap/kontena-lens/223
+/dev/loop0                        119M  119M     0 100% /snap/core/15419
+/dev/loop2                        117M  117M     0 100% /snap/robo3t-snap/9
+/dev/loop4                         56M   56M     0 100% /snap/core18/2785
+/dev/loop5                         56M   56M     0 100% /snap/core18/2751
+/dev/loop6                        218M  218M     0 100% /snap/kontena-lens/218
+/dev/sda1                         472M   59M  389M  14% /boot
+tmpfs                             983M   28K  983M   1% /run/user/117
+tmpfs                             983M     0  983M   0% /run/user/1000
+overlay                            58G   58G     0 100% /var/lib/docker/overlay2/b397a7207e0f6bfde896b31a67479ad6e04e4802bf109bf35aae3e66a3818122/merged
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ date
+Sat 15 Jul 2023 08:46:33 PM -03
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+~~~~
+
+
+
+
+- Efetuando limpeza
+- Removidas imagens Docker obsoletas.
+
+~~~~bash
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ df -h
+Filesystem                        Size  Used Avail Use% Mounted on
+udev                              4.8G     0  4.8G   0% /dev
+tmpfs                             983M   18M  965M   2% /run
+/dev/mapper/debian10x64--vg-root   58G   51G  3.8G  94% /
+tmpfs                             4.8G     0  4.8G   0% /dev/shm
+tmpfs                             5.0M     0  5.0M   0% /run/lock
+tmpfs                             4.8G     0  4.8G   0% /sys/fs/cgroup
+/dev/loop1                        119M  119M     0 100% /snap/core/15511
+/dev/loop3                        228M  228M     0 100% /snap/kontena-lens/223
+/dev/loop0                        119M  119M     0 100% /snap/core/15419
+/dev/loop2                        117M  117M     0 100% /snap/robo3t-snap/9
+/dev/loop4                         56M   56M     0 100% /snap/core18/2785
+/dev/loop5                         56M   56M     0 100% /snap/core18/2751
+/dev/loop6                        218M  218M     0 100% /snap/kontena-lens/218
+/dev/sda1                         472M   59M  389M  14% /boot
+tmpfs                             983M   28K  983M   1% /run/user/117
+tmpfs                             983M     0  983M   0% /run/user/1000
+overlay                            58G   51G  3.8G  94% /var/lib/docker/overlay2/b397a7207e0f6bfde896b31a67479ad6e04e4802bf109bf35aae3e66a3818122/merged
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ date
+Sat 15 Jul 2023 08:49:28 PM -03
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+
+~~~~
+
+
+
+
+- Efetuando limpeza adicional.
+- Pastas .terraform
+
+~~~~bash
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ ncdu -x /
+ncdu 1.13 ~ Use the arrow keys to navigate, press ? for help
+--- /home/fernando/cursos/terraform/terraform-udemy-cleber/terraform-aws -----------------------------------------------------------------------------------------------------------------
+                         /..
+    6.7 GiB [##########] /aulas
+   12.6 MiB [          ] /.git
+    3.7 MiB [          ] /.git-old
+    2.1 MiB [          ] /material-do-curso
+    4.0 KiB [          ]  README.md
+    4.0 KiB [          ]  .gitignore
+
+
+
+DEPOIS:
+
+
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ ncdu -x /
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ ncdu -x /
+ncdu 1.13 ~ Use the arrow keys to navigate, press ? for help
+--- /home/fernando/cursos/terraform/terraform-udemy-cleber/terraform-aws -----------------------------------------------------------------------------------------------------------------
+                         /..
+    2.2 GiB [##########] /aulas
+   12.6 MiB [          ] /.git
+    3.7 MiB [          ] /.git-old
+    2.1 MiB [          ] /material-do-curso
+    4.0 KiB [          ]  README.md
+    4.0 KiB [          ]  .gitignore
+
+
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ df -h
+Filesystem                        Size  Used Avail Use% Mounted on
+udev                              4.8G     0  4.8G   0% /dev
+tmpfs                             983M   18M  965M   2% /run
+/dev/mapper/debian10x64--vg-root   58G   41G   14G  75% /
+tmpfs                             4.8G     0  4.8G   0% /dev/shm
+tmpfs                             5.0M     0  5.0M   0% /run/lock
+tmpfs                             4.8G     0  4.8G   0% /sys/fs/cgroup
+/dev/loop1                        119M  119M     0 100% /snap/core/15511
+/dev/loop3                        228M  228M     0 100% /snap/kontena-lens/223
+/dev/loop0                        119M  119M     0 100% /snap/core/15419
+/dev/loop2                        117M  117M     0 100% /snap/robo3t-snap/9
+/dev/loop4                         56M   56M     0 100% /snap/core18/2785
+/dev/loop5                         56M   56M     0 100% /snap/core18/2751
+/dev/loop6                        218M  218M     0 100% /snap/kontena-lens/218
+/dev/sda1                         472M   59M  389M  14% /boot
+tmpfs                             983M  3.5M  979M   1% /run/user/1000
+overlay                            58G   41G   14G  75% /var/lib/docker/overlay2/b397a7207e0f6bfde896b31a67479ad6e04e4802bf109bf35aae3e66a3818122/merged
+/dev/sr0                          336M  336M     0 100% /media/cdrom0
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$ date
+Sat 15 Jul 2023 09:05:36 PM -03
+fernando@debian10x64:~/cursos/boilerplates/nodejs-boilerplates$
+
+~~~~
+
+
+
+
+
+
+
+- Novo teste de instalação do app, iniciado as 21:08h:
+
+chPage.tsx ✔
+
+ Moving to final location:
+  moving        meu-backstage-teste ✔
+
+ Installing dependencies:
+  determining   yarn version ✔
+  executing     yarn install ◞
+
+
+
+
+
+- NOVO ERRO
+
+
+gyp ERR! find Python - Set the npm configuration variable python:
+gyp ERR! find Python   npm config set python "/path/to/pythonexecutable"
+gyp ERR! find Python For more information consult the documentation at:
+gyp ERR! find Python https://github.com/nodejs/node-gyp#installation
+gyp ERR! find Python **********************************************************
+gyp ERR! find Python
+gyp ERR! configure error
+gyp ERR! stack Error: Could not find any Python installation to use
+gyp ERR! stack     at PythonFinder.fail (/meu-backstage-teste/node_modules/node-gyp/lib/find-python.js:330:47)
+gyp ERR! stack     at PythonFinder.runChecks (/meu-backstage-teste/node_modules/node-gyp/lib/find-python.js:159:21)
+gyp ERR! stack     at PythonFinder.<anonymous> (/meu-backstage-teste/node_modules/node-gyp/lib/find-python.js:202:16)
+gyp ERR! stack     at PythonFinder.execFileCallback (/meu-backstage-teste/node_modules/node-gyp/lib/find-python.js:294:16)
+gyp ERR! stack     at exithandler (node:child_process:410:5)
+gyp ERR! stack     at ChildProcess.errorhandler (node:child_process:422:5)
+gyp ERR! stack     at ChildProcess.emit (node:events:513:28)
+gyp ERR! stack     at Process.ChildProcess._handle.onexit (node:internal/child_process:291:12)
+gyp ERR! stack     at onErrorNT (node:internal/child_process:485:16)
+gyp ERR! stack     at processTicksAndRejections (node:internal/process/task_queues:83:21)
+gyp ERR! System Linux 4.19.0-17-amd64
+gyp ERR! command "/usr/local/bin/node" "/meu-backstage-teste/node_modules/.bin/node-gyp" "rebuild" "--release" "-j" "4"
+gyp ERR! cwd /meu-backstage-teste/node_modules/isolated-vm
+gyp ERR! node -v v16.20.1
+gyp ERR! node-gyp -v v9.4.0
+gyp ERR! not ok
+yarn install v1.22.19
+[1/5] Validating package.json...
+[2/5] Resolving packages...
+[3/5] Fetching packages...
+[4/5] Linking dependencies...
+[5/5] Building fresh packages...
+info This module is OPTIONAL, you can safely ignore this error
+info This module is OPTIONAL, you can safely ignore this error
+info This module is OPTIONAL, you can safely ignore this error
+info This module is OPTIONAL, you can safely ignore this error
+info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this command.
+  executing     yarn install ✖
+
+Error: Could not execute command yarn install
+
+It seems that something went wrong when creating the app 🤔
+
+🔥  Failed to create app!
+
+root@149d2b769492:/#
