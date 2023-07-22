@@ -1,10 +1,10 @@
 version: '3'
 services:
-  app-teste-fusionist:
+  backstage-app-mandragora:
     build:
       context: ./app
       dockerfile: ./Dockerfile
-    container_name: node_app_teste
+    container_name: container_backstage_app_mandragora
     restart: always
     ports:
       - 3000:3000

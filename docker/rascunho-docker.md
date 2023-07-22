@@ -22,6 +22,29 @@ git status
 
 
 
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## COMANDOS ÚTEIS
+
+cd ~/cursos/idp-devportal/backstage/docker/docker-compose
+docker-compose build --no-cache
+
+docker ps
+docker-compose up -d
+docker ps
+docker container exec -ti node_app_teste bash
+
+npx @backstage/create-app@latest
+
+
+
+
+
+
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -1848,3 +1871,65 @@ root@149d2b769492:/#
 ## Dia 22/07/2023
 
 
+- RETOMANDO INSTALAÇÃO DO APP
+
+https://backstage.io/docs/deployment/docker/
+<https://backstage.io/docs/deployment/docker/>
+
+This section assumes that an app has already been created with @backstage/create-app, in which the frontend is bundled and served from the backend. This is done using the @backstage/plugin-app-backend plugin, which also injects the frontend configuration into the app. This means that you only need to build and deploy a single container in a minimal setup of Backstage. If you wish to separate the serving of the frontend out from the backend, see the separate frontend topic below.
+
+Conforme a mensagem acima, é necessário criar o app antes, seguindo as instruções da página abaixo:
+https://backstage.io/docs/getting-started/create-an-app/
+<https://backstage.io/docs/getting-started/create-an-app/>
+
+
+## INSTALANDO APP - BACKSTAGE
+
+- Instalando app:
+docker ps
+docker-compose up -d
+docker ps
+docker container exec -ti node_app_teste bash
+npx @backstage/create-app@latest
+
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE                                COMMAND                  CREATED      STATUS          PORTS                                       NAMES
+149d2b769492   docker-compose_app-teste-fusionist   "docker-entrypoint.s…"   6 days ago   Up 40 minutes   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   node_app_teste
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker-compose down
+Stopping node_app_teste ... done
+Removing node_app_teste ... done
+Removing network docker-compose_default
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ docker ps
+CONTAINER ID   IMAGE                                     COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+4d901093c7c3   docker-compose_backstage-app-mandragora   "docker-entrypoint.s…"   6 seconds ago   Up 4 seconds   0.0.0.0:3000->3000/tcp, :::3000->3000/tcp   container_backstage_app_mandragora
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$ date
+Sat 22 Jul 2023 01:55:18 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+
+~~~~
+
+
+container_backstage_app_mandragora
+docker container exec -ti container_backstage_app_mandragora bash
+
+
+
+- Antes de instalar o app novamente, vou buildar a imagem novamente, trocando a imagem Node slim pela normal, para evitar o erro de Python ocorrido antes.
+VERSÃO ESCOLHIDA, 18.17
+https://hub.docker.com/layers/library/node/18.17/images/sha256-adada03d29a294500de44f4d223c8dc44c28f66f68bc31b828b47d8010962ceb?context=explore
+<https://hub.docker.com/layers/library/node/18.17/images/sha256-adada03d29a294500de44f4d223c8dc44c28f66f68bc31b828b47d8010962ceb?context=explore>
+ela tem este package, por exemplo:
+debian/python3.11 3.11.2-6
+indicando que deve ter tudo sobre Python a principio
+
+DE:
+FROM node:16-bullseye-slim
+
+PARA:
+FROM node:18.17
