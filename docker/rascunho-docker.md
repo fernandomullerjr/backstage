@@ -2208,7 +2208,18 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
 - Incrementando devagar, mas tá.
 
 
+- Instalação terminou:
 
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ du -sh app-teste2/
+1.3G    app-teste2/
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ date
+Sat 22 Jul 2023 05:30:29 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+
+~~~~
 
 
 
@@ -2231,6 +2242,7 @@ https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
 ## PENDENTE
 
 - Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Ou instalação local via Debain mesmo, que está na pasta "backstage/docker/multi-stage/teste2/app-teste2".
 - Utilizar o Multi-Stage na primeira tentativa:
         https://backstage.io/docs/deployment/docker/
         https://github.com/backstage/demo/blob/master/Dockerfile
