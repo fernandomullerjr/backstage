@@ -2261,3 +2261,175 @@ https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+
+
+- Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Ou instalação local via Debain mesmo, que está na pasta "backstage/docker/multi-stage/teste2/app-teste2".
+
+- Copiada pasta "backstage/docker/multi-stage/teste2/app-teste2" para:
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-teste2
+
+- Modificar o node de 16 para 18.17
+https://hub.docker.com/layers/library/node/18.17.0-bullseye-slim/images/sha256-947fcbfa6e6bc43e8dcf2223aa2b37b5543cb8fc40bf0049804e45125fb6873a?context=explore
+node:18.17.0-bullseye-slim
+
+- Buildando
+cd /home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+
+Once you have added both the Dockerfile and .dockerignore to the root of your project, run the following to build the container under a specified tag.
+
+docker image build -t backstage-tentativa3 .
+
+To try out the image locally you can run the following:
+
+docker run -it -p 7007:7007 backstage-tentativa3
+
+
+
+- Testando build
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ cd /home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image build -t backstage-tentativa3 .
+Sending build context to Docker daemon  1.604MB
+Step 1/27 : FROM node:18.17.0-bullseye-slim AS packages
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ cd /home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image build -t backstage-tentativa3 .
+Sending build context to Docker daemon  1.604MB
+Step 1/27 : FROM node:18.17.0-bullseye-slim AS packages
+18.17.0-bullseye-slim: Pulling from library/node
+9d21b12d5fab: Already exists
+ce632e02ef79: Already exists
+17fd286e480b: Pull complete
+58dba8cfdcb8: Pull complete
+6f617a58ba1e: Pull complete
+Digest: sha256:d2617c7df857596e4f29715c7a4d8e861852648865d110c7d3c82e3606e6f0ba
+Status: Downloaded newer image for node:18.17.0-bullseye-slim
+ ---> eb0946b189e9
+Step 2/27 : WORKDIR /app
+ ---> Running in 766ad1e455dd
+Removing intermediate container 766ad1e455dd
+ ---> 18ac5537d7c5
+Step 3/27 : COPY package.json yarn.lock ./
+ ---> 04947893e477
+Step 4/27 : COPY packages packages
+ ---> 7dbe71c18599
+Step 5/27 : COPY plugins plugins
+COPY failed: file not found in build context or excluded by .dockerignore: stat plugins: file does not exist
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+ERRO
+COPY failed: file not found in build context or excluded by .dockerignore: stat plugins: file does not exist
+
+
+
+
+- Ajustando
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/.dockerignore
+
+DE:
+
+.git
+.yarn/cache
+.yarn/install-state.gz
+node_modules
+packages/*/src
+packages/*/node_modules
+plugins
+*.local.yaml
+
+
+PARA:
+
+dist-types
+node_modules
+packages/*/dist
+packages/*/node_modules
+plugins/*/dist
+plugins/*/node_modules
+
+
+
+- ERRO
+
+~~~~BASH
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image build -t backstage-tentativa3 .
+Sending build context to Docker daemon  1.212MB
+Step 1/27 : FROM node:18.17.0-bullseye-slim AS packages
+ ---> eb0946b189e9
+Step 2/27 : WORKDIR /app
+ ---> Using cache
+ ---> 18ac5537d7c5
+Step 3/27 : COPY package.json yarn.lock ./
+ ---> Using cache
+ ---> 04947893e477
+Step 4/27 : COPY packages packages
+ ---> 3a1dfa38caa2
+Step 5/27 : COPY plugins plugins
+ ---> 1c136d8c62f4
+Step 6/27 : RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
+ ---> Running in 5ba3bb850f07
+Removing intermediate container 5ba3bb850f07
+ ---> 6991084d6825
+Step 7/27 : FROM node:18.17.0-bullseye-slim AS build
+ ---> eb0946b189e9
+Step 8/27 : RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y --no-install-recommends libsqlite3-dev python3 build-essential &&     yarn config set python /usr/bin/python3
+the --mount option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+
+- Tratar erro
+the --mount option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Tratar erro
+the --mount option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+
+- Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Ou instalação local via Debain mesmo, que está na pasta "backstage/docker/multi-stage/teste2/app-teste2".
+- Utilizar o Multi-Stage na primeira tentativa:
+        https://backstage.io/docs/deployment/docker/
+        https://github.com/backstage/demo/blob/master/Dockerfile
+- Ou tentar tutorial de 3 partes do blog:
+        https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage. Instalar o app do Backstage.
+- Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
