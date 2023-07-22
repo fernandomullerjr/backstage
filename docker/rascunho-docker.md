@@ -2153,3 +2153,99 @@ root       1956     15  0 18:56 pts/0    00:00:00 ps -ef
 root@8a5b7e21d5d1:/backstage-app-mandragora#
 
 ~~~~
+
+
+
+
+
+
+https://github.com/backstage/demo/blob/master/Dockerfile
+
+https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+
+
+
+
+
+
+
+
+- Testando local novamente
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/teste2
+npx @backstage/create-app@latest
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ du -sh app-teste2/
+376K    app-teste2/
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ date
+Sat 22 Jul 2023 05:06:54 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ du -sh app-teste2/
+376K    app-teste2/
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ date
+Sat 22 Jul 2023 05:09:42 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ du -sh app-teste2/
+75M     app-teste2/
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$ date
+Sat 22 Jul 2023 05:13:22 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/teste2$
+
+~~~~
+
+
+- Incrementando devagar, mas tá.
+
+
+
+
+
+
+
+
+
+https://github.com/backstage/demo/blob/master/Dockerfile
+
+https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Utilizar o Multi-Stage na primeira tentativa:
+        https://backstage.io/docs/deployment/docker/
+        https://github.com/backstage/demo/blob/master/Dockerfile
+- Ou tentar tutorial de 3 partes do blog:
+        https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage. Instalar o app do Backstage.
+- Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
