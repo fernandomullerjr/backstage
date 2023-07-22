@@ -1933,3 +1933,223 @@ FROM node:16-bullseye-slim
 
 PARA:
 FROM node:18.17
+
+
+
+~~~~bash
+Removing intermediate container 24221d24c099
+ ---> c5b549ebccbb
+Step 5/7 : COPY . .
+ ---> 49ad2a249366
+Step 6/7 : EXPOSE 3000
+ ---> Running in 208a74915a70
+Removing intermediate container 208a74915a70
+ ---> 65d2ed00b2c1
+Step 7/7 : CMD ["node", "index.js"]
+ ---> Running in b42b5a0f4397
+Removing intermediate container b42b5a0f4397
+ ---> ae1e7d59f1a5
+Successfully built ae1e7d59f1a5
+Successfully tagged docker-compose_backstage-app-mandragora:latest
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/docker-compose$
+
+~~~~
+
+
+
+- Instalando app:
+docker ps
+docker-compose up -d
+docker ps
+docker container exec -ti container_backstage_app_mandragora bash
+npx @backstage/create-app@latest
+
+~~~~bash
+root@8a5b7e21d5d1:/#
+root@8a5b7e21d5d1:/#
+root@8a5b7e21d5d1:/# npx @backstage/create-app@latest
+Need to install the following packages:
+  @backstage/create-app@0.5.3
+Ok to proceed? (y) y
+? Enter a name for the app [required] backstage-app-mandragora
+
+[................................................................]
+
+ Moving to final location:
+  moving        backstage-app-mandragora ✔
+
+ Installing dependencies:
+  determining   yarn version ✔
+  executing     yarn install ✔
+  executing     yarn tsc ✔
+
+🥇  Successfully created backstage-app-mandragora
+
+
+ All set! Now you might want to:
+  Install the dependencies: cd backstage-app-mandragora && yarn install
+  Run the app: cd backstage-app-mandragora && yarn dev
+  Set up the software catalog: https://backstage.io/docs/features/software-catalog/configuration
+  Add authentication: https://backstage.io/docs/auth/
+
+root@8a5b7e21d5d1:/#
+
+root@8a5b7e21d5d1:/# ls
+app                       bin   dev  home      lib    lib64   media  node_modules  package-lock.json  proc  run   srv  tmp  var
+backstage-app-mandragora  boot  etc  index.js  lib32  libx32  mnt    opt           package.json       root  sbin  sys  usr
+root@8a5b7e21d5d1:/# ls -lhasp backstage-app-mandragora/
+total 1.2M
+ 4.0K drwxr-xr-x    7 root root  4.0K Jul 22 17:32 ./
+ 4.0K drwxr-xr-x    1 root root  4.0K Jul 22 17:17 ../
+ 4.0K -rw-r--r--    1 root root   113 Jul 22 17:17 .dockerignore
+ 4.0K -rw-r--r--    1 root root    36 Jul 22 17:17 .eslintrc.js
+ 4.0K -rw-r--r--    1 root root   650 Jul 22 17:17 .gitignore
+ 4.0K -rw-r--r--    1 root root    33 Jul 22 17:17 .prettierignore
+ 4.0K -rw-r--r--    1 root root   150 Jul 22 17:17 README.md
+ 4.0K -rw-r--r--    1 root root    74 Jul 22 17:17 app-config.local.yaml
+ 4.0K -rw-r--r--    1 root root  1.6K Jul 22 17:17 app-config.production.yaml
+ 4.0K -rw-r--r--    1 root root  3.8K Jul 22 17:17 app-config.yaml
+ 4.0K -rw-r--r--    1 root root    26 Jul 22 17:17 backstage.json
+ 4.0K -rw-r--r--    1 root root   365 Jul 22 17:17 catalog-info.yaml
+ 4.0K drwxr-xr-x    3 root root  4.0K Jul 22 17:32 dist-types/
+ 4.0K drwxr-xr-x    3 root root  4.0K Jul 22 17:17 examples/
+ 4.0K -rw-r--r--    1 root root   116 Jul 22 17:17 lerna.json
+  64K drwxr-xr-x 1688 root root   64K Jul 22 17:32 node_modules/
+ 4.0K -rw-r--r--    1 root root  1.5K Jul 22 17:17 package.json
+ 4.0K drwxr-xr-x    4 root root  4.0K Jul 22 17:17 packages/
+ 4.0K drwxr-xr-x    2 root root  4.0K Jul 22 17:17 plugins/
+ 4.0K -rw-r--r--    1 root root   272 Jul 22 17:17 tsconfig.json
+1004K -rw-r--r--    1 root root 1003K Jul 22 17:32 yarn.lock
+
+~~~~
+
+
+- OK! Instalou o app.
+
+
+
+https://backstage.io/docs/getting-started/create-an-app/
+
+Run the app
+
+When the installation is complete you can open the app folder and start the app.
+
+cd my-backstage-app
+yarn dev
+
+The yarn dev command will run both the frontend and backend as separate processes (named [0] and [1]) in the same window. When the command finishes running, it should open up a browser window displaying your app. If not, you can open a browser and directly navigate to the frontend at http://localhost:3000.
+
+Now you're free to hack away on your own Backstage installation!
+
+As you get more experienced with the app, in future you can run just the frontend with yarn start in one window, and the backend with yarn start-backend in a different window.
+
+
+- Comando editado
+cd backstage-app-mandragora
+yarn dev
+
+
+
+<http://192.168.0.110:3000/>
+
+
+
+
+
+
+
+- ERROS
+porta 3000 em uso
+
+~~~~bash
+
+root@8a5b7e21d5d1:/# cd backstage-app-mandragora
+yarn dev
+yarn run v1.22.19
+$ concurrently "yarn start" "yarn start-backend"
+$ yarn workspace app start
+$ yarn workspace backend start
+$ backstage-cli package start
+$ backstage-cli package start
+[1] Build succeeded
+[0] Loaded config from app-config.yaml
+[0] fatal: not a git repository (or any of the parent directories): .git
+[0] WARNING: Failed to read git commit, ExitCodeError: Command 'git rev-parse HEAD' exited with code 128
+[0] fatal: not a git repository (or any of the parent directories): .git
+[0] WARNING: Failed to describe git version, ExitCodeError: Command 'git describe --always' exited with code 128
+[0] /backstage-app-mandragora/node_modules/webpack-dev-server/lib/Server.js:2557
+[0]         throw error;
+[0]         ^
+[0]
+[0] Error: listen EADDRINUSE: address already in use 127.0.0.1:3000
+[0]     at Server.setupListenHandle [as _listen2] (node:net:1751:16)
+[0]     at listenInCluster (node:net:1799:12)
+[0]     at GetAddrInfoReqWrap.doListen [as callback] (node:net:1948:7)
+[0]     at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:110:8) {
+[0]   code: 'EADDRINUSE',
+[0]   errno: -98,
+[0]   syscall: 'listen',
+[0]   address: '127.0.0.1',
+[0]   port: 3000
+[0] }
+[0]
+[0] Node.js v18.17.0
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+error Command failed.
+[0] Exit code: 1
+[0] Command: /usr/local/bin/node
+[0] Arguments: /opt/yarn-v1.22.19/lib/cli.js start
+[0] Directory: /backstage-app-mandragora/packages/app
+[0] Output:
+[0]
+info Visit https://yarnpkg.com/en/docs/cli/workspace for documentation about this command.
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+[0] yarn start exited with code 1
+[1] Loaded config from app-config.yaml
+[1] 2023-07-22T18:53:32.582Z backstage info Found 2 new secrets in config that will be redacted
+[1] 2023-07-22T18:53:32.600Z backstage info Created UrlReader predicateMux{readers=azure{host=dev.azure.com,authed=false},bitbucketCloud{host=bitbucket.org,authed=false},github{host=github.com,authed=false},gitlab{host=gitlab.com,authed=false},awsS3{host=amazonaws.com,authed=false},fetch{}
+[1] 2023-07-22T18:53:32.634Z catalog info Performing database migration type=plugin
+[1] 2023-07-22T18:53:32.815Z auth info Configuring "database" as KeyStore provider type=plugin
+[1] 2023-07-22T18:53:32.833Z techdocs info Creating Local publisher for TechDocs type=plugin
+[1] 2023-07-22T18:53:32.840Z search info Added DefaultCatalogCollatorFactory collator factory for type software-catalog type=plugin
+[1] 2023-07-22T18:53:32.842Z search info Added DefaultTechDocsCollatorFactory collator factory for type techdocs type=plugin
+[1] 2023-07-22T18:53:32.843Z search info Starting all scheduled search tasks. type=plugin
+[1] 2023-07-22T18:53:32.859Z backstage info Listening on :7007
+[1] 2023-07-22T18:53:32.872Z backstage info Task worker starting: search_index_software_catalog, {"version":2,"cadence":"PT10M","initialDelayDuration":"PT3S","timeoutAfterDuration":"PT15M"} type=taskManager task=search_index_software_catalog
+[1] 2023-07-22T18:53:32.873Z backstage info Task worker starting: search_index_techdocs, {"version":2,"cadence":"PT10M","initialDelayDuration":"PT3S","timeoutAfterDuration":"PT15M"} type=taskManager task=search_index_techdocs
+[1] 2023-07-22T18:53:35.884Z search info Collating documents for software-catalog via DefaultCatalogCollatorFactory type=plugin documentType=software-catalog
+[1] 2023-07-22T18:53:35.930Z search info Collating documents for techdocs via DefaultTechDocsCollatorFactory type=plugin documentType=techdocs
+[1] 2023-07-22T18:53:35.965Z backstage info ::ffff:127.0.0.1 - - [22/Jul/2023:18:53:35 +0000] "GET /api/catalog/entities?filter=metadata.annotations.backstage.io%2Ftechdocs-ref&fields=kind,namespace,metadata.annotations,metadata.name,metadata.title,metadata.namespace,spec.type,spec.lifecycle,relations&offset=0&limit=500 HTTP/1.1" 200 2 "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)" type=incomingRequest
+[1] 2023-07-22T18:53:35.971Z search warn Index for techdocs was not created: indexer received 0 documents type=plugin documentType=techdocs
+[1] 2023-07-22T18:53:35.973Z search info Collating documents for techdocs succeeded type=plugin documentType=techdocs
+[1] 2023-07-22T18:53:35.978Z backstage info ::ffff:127.0.0.1 - - [22/Jul/2023:18:53:35 +0000] "GET /api/catalog/entities?offset=0&limit=500 HTTP/1.1" 200 - "-" "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)" type=incomingRequest
+[1] 2023-07-22T18:53:35.992Z search info Collating documents for software-catalog succeeded type=plugin documentType=software-catalog
+^C
+root@8a5b7e21d5d1:/backstage-app-mandragora# [1] yarn start-backend exited with code SIGINT
+^C^C
+root@8a5b7e21d5d1:/backstage-app-mandragora# ps -ef
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 17:16 ?        00:00:00 node index.js
+root         15      0  0 17:16 pts/0    00:00:00 bash
+root       1829      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1861      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1885      1  0 18:53 pts/0    00:00:00 [node] <defunct>
+root       1907      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1939      1  7 18:53 pts/0    00:00:11 [node] <defunct>
+root       1955     15  0 18:56 pts/0    00:00:00 ps -ef
+root@8a5b7e21d5d1:/backstage-app-mandragora# kill -9 1
+root@8a5b7e21d5d1:/backstage-app-mandragora# ps -ef
+UID         PID   PPID  C STIME TTY          TIME CMD
+root          1      0  0 17:16 ?        00:00:00 node index.js
+root         15      0  0 17:16 pts/0    00:00:00 bash
+root       1829      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1861      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1885      1  0 18:53 pts/0    00:00:00 [node] <defunct>
+root       1907      1  0 18:53 pts/0    00:00:00 [sh] <defunct>
+root       1939      1  6 18:53 pts/0    00:00:11 [node] <defunct>
+root       1956     15  0 18:56 pts/0    00:00:00 ps -ef
+root@8a5b7e21d5d1:/backstage-app-mandragora#
+
+~~~~
