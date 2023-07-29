@@ -2673,6 +2673,10 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentati
 ~~~~
 
 
+
+
+
+
 - OK, buildou a imagem:
 
 ~~~~bash
@@ -2693,3 +2697,108 @@ Sat 29 Jul 2023 04:25:15 PM -03
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
 
 ~~~~
+
+
+
+
+
+https://backstage.io/docs/deployment/docker/
+<https://backstage.io/docs/deployment/docker/>
+
+To try out the image locally you can run the following:
+
+docker run -it -p 7007:7007 backstage
+
+
+- Comando editado:
+docker run -it -p 7007:7007 backstage-tentativa3
+
+
+~~~~bash
+fernando@debian10x64:~$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+af06e17e5f73   backstage-tentativa3   "docker-entrypoint.s…"   21 seconds ago   Up 20 seconds   0.0.0.0:7007->7007/tcp, :::7007->7007/tcp   nervou                                        s_johnson
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                       NAMES
+af06e17e5f73   backstage-tentativa3   "docker-entrypoint.s…"   29 seconds ago   Up 29 seconds   0.0.0.0:7007->7007/tcp, :::7007->7007/tcp   nervous_johnson
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ date
+Sat 29 Jul 2023 04:37:56 PM -03
+fernando@debian10x64:~$
+
+
+~~~~
+
+
+
+http://192.168.0.110:7007/
+
+
+~~~~bash
+fernando@debian10x64:~$ curl http://192.168.0.110:7007/
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Backstage is an open platform for building developer portals"/><link rel="apple-touch-icon" href="/logo192.png"/><link rel="manifest" href="/manifest.json" crossorigin="use-credentials"/><link rel="icon" href="/favicon.ico"/><link rel="shortcut icon" href="/favicon.ico"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"/><title>Scaffolded Backstage App</title><script defer="defer" src="/static/runtime.e117edc2.js"></script><script defer="defer" src="/static/module-material-ui.74b8ec81.js"></script><script defer="defer" src="/static/module-lodash.4255ece8.js"></script><script defer="defer" src="/static/module-backstage.f5d0c5b8.js"></script><script defer="defer" src="/static/module-date-fns.7572de26.js"></script><script defer="defer" src="/static/module-yaml.3442c513.js"></script><script defer="defer" src="/static/module-material-table.4dbe2987.js"></script><script defer="defer" src="/static/module-luxon.4200c284.js"></script><script defer="defer" src="/static/module-react-beautiful-dnd.58836c3e.js"></script><script defer="defer" src="/static/module-micromark-core-commonmark.ca51b777.js"></script><script defer="defer" src="/static/module-octokit.36cfc981.js"></script><script defer="defer" src="/static/module-zod.bf185f0f.js"></script><script defer="defer" src="/static/module-photoswipe.c7e60322.js"></script><script defer="defer" src="/static/module-react-dom.d69a898f.js"></script><script defer="defer" src="/static/module-remix-run.5b9692ce.js"></script><script defer="defer" src="/static/vendor.e117edc2.js"></script><script defer="defer" src="/static/main.e117edc2.js"></script><link href="/static/vendor.a3186a5f.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>fernando@debian10x64:~$
+~~~~
+
+
+
+- No navegador do Notebook nao abre, abre uma página em branco com titulo "Scaffolded Backstage App":
+http://192.168.0.110:7007/
+<http://192.168.0.110:7007/>
+
+- No browser do servidor Debian, abriu corretamente:
+http://localhost:7007/
+<http://localhost:7007/>
+
+
+
+
+
+
+
+
+
+
+
+- Ler
+https://roadie.io/blog/backstage-docker-service-catalog/
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Ler
+https://roadie.io/blog/backstage-docker-service-catalog/
+
+- Verificar porque nao abre via notebook.
+
+- Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Ou instalação local via Debain mesmo, que está na pasta "backstage/docker/multi-stage/teste2/app-teste2".
+- Utilizar o Multi-Stage na primeira tentativa:
+        https://backstage.io/docs/deployment/docker/
+        https://github.com/backstage/demo/blob/master/Dockerfile
+- Ou tentar tutorial de 3 partes do blog:
+        https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage. Instalar o app do Backstage.
+- Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+
