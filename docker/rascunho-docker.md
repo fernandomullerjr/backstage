@@ -2433,3 +2433,59 @@ the --mount option requires BuildKit. Refer to https://docs.docker.com/go/buildk
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 29/07/2023
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+docker image build -t backstage-tentativa3 .
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage$
+fernando@debian10x64:~/cursos/idp-devportal/backstage$ cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image build -t backstage-tentativa3 .
+Sending build context to Docker daemon  1.212MB
+Step 1/27 : FROM node:18.17.0-bullseye-slim AS packages
+ ---> eb0946b189e9
+Step 2/27 : WORKDIR /app
+ ---> Using cache
+ ---> 18ac5537d7c5
+Step 3/27 : COPY package.json yarn.lock ./
+ ---> Using cache
+ ---> 04947893e477
+Step 4/27 : COPY packages packages
+ ---> Using cache
+ ---> 3a1dfa38caa2
+Step 5/27 : COPY plugins plugins
+ ---> Using cache
+ ---> 1c136d8c62f4
+Step 6/27 : RUN find packages \! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} \+
+ ---> Using cache
+ ---> 6991084d6825
+Step 7/27 : FROM node:18.17.0-bullseye-slim AS build
+ ---> eb0946b189e9
+Step 8/27 : RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y --no-install-recommends libsqlite3-dev python3 build-essential &&     yarn config set python /usr/bin/python3
+the --mount option requires BuildKit. Refer to https://docs.docker.com/go/buildkit/ to learn how to build images with BuildKit enabled
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+
+
+https://docs.docker.com/build/buildkit/#getting-started
+<https://docs.docker.com/build/buildkit/#getting-started>
