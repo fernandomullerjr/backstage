@@ -2489,3 +2489,207 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentati
 
 https://docs.docker.com/build/buildkit/#getting-started
 <https://docs.docker.com/build/buildkit/#getting-started>
+
+To set the BuildKit environment variable when running the docker build command, run:
+
+DOCKER_BUILDKIT=1 docker build .
+
+
+
+DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+
+- Testando
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 6.0s (11/23)
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.1s
+ => => transferring dockerfile: 3.24kB                                                                                                                                               0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 141B                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                                    0.1s
+ => => transferring context: 1.16MB                                                                                                                                                  0.0s
+ => [packages 1/6] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                 0.1s
+ => [packages 2/6] WORKDIR /app                                                                                                                                                      0.1s
+ => [build 2/9] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y   5.7s
+ => => # Get:12 http://deb.debian.org/debian bullseye/main amd64 libncursesw6 amd64 6.2+20201114-2+deb11u1 [132 kB]
+ => => # Get:13 http://deb.debian.org/debian bullseye/main amd64 readline-common all 8.1-1 [73.7 kB]
+ => => # Get:14 http://deb.debian.org/debian bullseye/main amd64 libreadline8 amd64 8.1-1 [169 kB]
+ => => # Get:15 http://deb.debian.org/debian bullseye/main amd64 libsqlite3-0 amd64 3.34.1-3 [797 kB]
+ => => # Get:16 http://deb.debian.org/debian bullseye/main amd64 libpython3.9-stdlib amd64 3.9.2-1 [1684 kB]
+ => => # Get:17 http://deb.debian.org/debian bullseye/main amd64 python3.9 amd64 3.9.2-1 [466 kB]
+ => [packages 3/6] COPY package.json yarn.lock ./                                                                                                                                    0.2s
+ => [packages 4/6] COPY packages packages                                                                                                                                            0.1s
+ => [packages 5/6] COPY plugins plugins                                                                                                                                              0.1s
+ => [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                                0.6s
+
+
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 138.9s (14/23)
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.1s
+ => => transferring dockerfile: 3.24kB                                                                                                                                               0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 141B                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                                    0.1s
+ => => transferring context: 1.16MB                                                                                                                                                  0.0s
+ => [packages 1/6] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                 0.1s
+ => [packages 2/6] WORKDIR /app                                                                                                                                                      0.1s
+ => [build 2/9] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y  39.7s
+ => [packages 3/6] COPY package.json yarn.lock ./                                                                                                                                    0.2s
+ => [packages 4/6] COPY packages packages                                                                                                                                            0.1s
+ => [packages 5/6] COPY plugins plugins                                                                                                                                              0.1s
+ => [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                                0.6s
+ => [build 3/9] WORKDIR /app                                                                                                                                                         0.1s
+ => [build 4/9] COPY --from=packages --chown=node:node /app .                                                                                                                        0.2s
+ => [build 5/9] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --network-timeout 600000                   98.6s
+ => => # yarn install v1.22.19
+ => => # [1/5] Validating package.json...
+ => => # [2/5] Resolving packages...
+ => => # [3/5] Fetching packages...
+ => => # warning Pattern ["app@link:packages/app"] is trying to unpack in the same destination "/home/node/.cache/yarn/v6/npm-app-0.0.0/node_modules/app" as pattern ["app@0.0.0","app@0.
+ => => # 0.0"]. This could result in non-deterministic behavior, skipping.
+
+
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 589.5s (17/23)
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.1s
+ => => transferring dockerfile: 3.24kB                                                                                                                                               0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 141B                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                                    0.1s
+ => => transferring context: 1.16MB                                                                                                                                                  0.0s
+ => [packages 1/6] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                 0.1s
+ => [packages 2/6] WORKDIR /app                                                                                                                                                      0.1s
+ => [build 2/9] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y  39.7s
+ => [packages 3/6] COPY package.json yarn.lock ./                                                                                                                                    0.2s
+ => [packages 4/6] COPY packages packages                                                                                                                                            0.1s
+ => [packages 5/6] COPY plugins plugins                                                                                                                                              0.1s
+ => [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                                0.6s
+ => [build 3/9] WORKDIR /app                                                                                                                                                         0.1s
+ => [build 4/9] COPY --from=packages --chown=node:node /app .                                                                                                                        0.2s
+ => [build 5/9] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --network-timeout 600000                  500.2s
+ => [build 6/9] COPY --chown=node:node . .                                                                                                                                           0.1s
+ => [build 7/9] RUN yarn tsc                                                                                                                                                        11.5s
+ => [build 8/9] RUN yarn --cwd packages/backend build                                                                                                                               37.3s
+ => => # app:  WARNING: Failed to read git commit, ExitCodeError: Command 'git rev-parse HEAD' exited with code 127
+ => => # app:
+ => => # app:  /bin/sh: 1: git: not found
+ => => # app:
+ => => # app:  WARNING: Failed to describe git version, ExitCodeError: Command 'git describe --always' exited with code 127
+ => => # app:
+
+
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 697.7s (23/24)
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.1s
+ => => transferring dockerfile: 3.24kB                                                                                                                                               0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 141B                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                                    0.1s
+ => => transferring context: 1.16MB                                                                                                                                                  0.0s
+ => [packages 1/6] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                 0.1s
+ => [packages 2/6] WORKDIR /app                                                                                                                                                      0.1s
+ => [build 2/9] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y  39.7s
+ => [packages 3/6] COPY package.json yarn.lock ./                                                                                                                                    0.2s
+ => [packages 4/6] COPY packages packages                                                                                                                                            0.1s
+ => [packages 5/6] COPY plugins plugins                                                                                                                                              0.1s
+ => [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                                0.6s
+ => [build 3/9] WORKDIR /app                                                                                                                                                         0.1s
+ => [build 4/9] COPY --from=packages --chown=node:node /app .                                                                                                                        0.2s
+ => [build 5/9] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --network-timeout 600000                  500.2s
+ => [build 6/9] COPY --chown=node:node . .                                                                                                                                           0.1s
+ => [build 7/9] RUN yarn tsc                                                                                                                                                        11.5s
+ => [build 8/9] RUN yarn --cwd packages/backend build                                                                                                                               50.5s
+ => [build 9/9] RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle     && tar xzf packages/backend/dist/skeleton.tar.gz -C packages/backend/dist/skeleton     &&  1.2s
+ => [stage-2 4/7] COPY --from=build --chown=node:node /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton/ ./                                                       0.3s
+ => [stage-2 5/7] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --production --network-timeout 600000    82.3s
+ => [stage-2 6/7] COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./                                                                                          0.4s
+ => [stage-2 7/7] COPY --chown=node:node app-config.yaml ./                                                                                                                          0.1s
+ => exporting to image                                                                                                                                                               7.2s
+ => => exporting layers                                                                                                                                                              7.2s
+
+
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 698.0s (24/24) FINISHED
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.1s
+ => => transferring dockerfile: 3.24kB                                                                                                                                               0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 141B                                                                                                                                                    0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [internal] load build context                                                                                                                                                    0.1s
+ => => transferring context: 1.16MB                                                                                                                                                  0.0s
+ => [packages 1/6] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                 0.1s
+ => [packages 2/6] WORKDIR /app                                                                                                                                                      0.1s
+ => [build 2/9] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get install -y  39.7s
+ => [packages 3/6] COPY package.json yarn.lock ./                                                                                                                                    0.2s
+ => [packages 4/6] COPY packages packages                                                                                                                                            0.1s
+ => [packages 5/6] COPY plugins plugins                                                                                                                                              0.1s
+ => [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                                0.6s
+ => [build 3/9] WORKDIR /app                                                                                                                                                         0.1s
+ => [build 4/9] COPY --from=packages --chown=node:node /app .                                                                                                                        0.2s
+ => [build 5/9] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --network-timeout 600000                  500.2s
+ => [build 6/9] COPY --chown=node:node . .                                                                                                                                           0.1s
+ => [build 7/9] RUN yarn tsc                                                                                                                                                        11.5s
+ => [build 8/9] RUN yarn --cwd packages/backend build                                                                                                                               50.5s
+ => [build 9/9] RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle     && tar xzf packages/backend/dist/skeleton.tar.gz -C packages/backend/dist/skeleton     &&  1.2s
+ => [stage-2 4/7] COPY --from=build --chown=node:node /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton/ ./                                                       0.3s
+ => [stage-2 5/7] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --production --network-timeout 600000    82.3s
+ => [stage-2 6/7] COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./                                                                                          0.4s
+ => [stage-2 7/7] COPY --chown=node:node app-config.yaml ./                                                                                                                          0.1s
+ => exporting to image                                                                                                                                                               7.5s
+ => => exporting layers                                                                                                                                                              7.5s
+ => => writing image sha256:ab2bbae1faa9d1705b816441db3fafc147f0d90a38ae47c9d076bee2ff10a25d                                                                                         0.0s
+ => => naming to docker.io/library/backstage-tentativa3                                                                                                                              0.0s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ date
+Sat 29 Jul 2023 04:24:58 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+
+~~~~
+
+
+- OK, buildou a imagem:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image ls
+REPOSITORY                                TAG                     IMAGE ID       CREATED          SIZE
+backstage-tentativa3                      latest                  ab2bbae1faa9   31 seconds ago   1.01GB
+<none>                                    <none>                  6991084d6825   6 days ago       249MB
+<none>                                    <none>                  7dbe71c18599   6 days ago       249MB
+docker-compose_backstage-app-mandragora   latest                  ae1e7d59f1a5   7 days ago       1.1GB
+<none>                                    <none>                  18f9cae4a259   7 days ago       197MB
+node                                      18.17.0-bullseye-slim   eb0946b189e9   9 days ago       248MB
+node                                      18.17                   0f9df951673d   9 days ago       1.09GB
+docker-compose_app-teste-fusionist        latest                  af2a7918abb4   13 days ago      197MB
+node                                      16-bullseye-slim        6b02cfd592ca   3 weeks ago      191MB
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ date
+Sat 29 Jul 2023 04:25:15 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
