@@ -2802,3 +2802,241 @@ https://roadie.io/blog/backstage-docker-service-catalog/
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+
+docker run -it -p 7007:7007 backstage-tentativa3
+
+
+
+
+
+
+
+https://backstage.io/docs/conf/writing/
+<https://backstage.io/docs/conf/writing/>
+
+- Ajustando listen
+
+DE:
+
+~~~~YAML
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    # host: 127.0.0.1
+~~~~
+
+
+
+PARA:
+
+~~~~YAML
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+~~~~
+
+
+
+
+
+- Novo build
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+docker run -it -p 7007:7007 backstage-tentativa3
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
+[+] Building 97.4s (24/24) FINISHED
+ => [internal] load build definition from Dockerfile                                                                                                                                 0.0s
+ => => transferring dockerfile: 38B                                                                                                                                                  0.0s
+ => [internal] load .dockerignore                                                                                                                                                    0.0s
+ => => transferring context: 34B                                                                                                                                                     0.0s
+ => [internal] load metadata for docker.io/library/node:18.17.0-bullseye-slim                                                                                                        0.0s
+ => [internal] load build context                                                                                                                                                    0.0s
+ => => transferring context: 7.60kB                                                                                                                                                  0.0s
+ => [internal] settings cache mount permissions                                                                                                                                      0.0s
+ => [stage-2 1/7] FROM docker.io/library/node:18.17.0-bullseye-slim                                                                                                                  0.0s
+ => CACHED [stage-2 2/7] RUN --mount=type=cache,target=/var/cache/apt,sharing=locked     --mount=type=cache,target=/var/lib/apt,sharing=locked     apt-get update &&     apt-get in  0.0s
+ => CACHED [stage-2 3/7] WORKDIR /app                                                                                                                                                0.0s
+ => CACHED [packages 2/6] WORKDIR /app                                                                                                                                               0.0s
+ => CACHED [packages 3/6] COPY package.json yarn.lock ./                                                                                                                             0.0s
+ => CACHED [packages 4/6] COPY packages packages                                                                                                                                     0.0s
+ => CACHED [packages 5/6] COPY plugins plugins                                                                                                                                       0.0s
+ => CACHED [packages 6/6] RUN find packages ! -name "package.json" -mindepth 2 -maxdepth 2 -exec rm -rf {} +                                                                         0.0s
+ => CACHED [build 4/9] COPY --from=packages --chown=node:node /app .                                                                                                                 0.0s
+ => CACHED [build 5/9] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --network-timeout 600000             0.0s
+ => [build 6/9] COPY --chown=node:node . .                                                                                                                                           0.3s
+ => [build 7/9] RUN yarn tsc                                                                                                                                                        16.6s
+ => [build 8/9] RUN yarn --cwd packages/backend build                                                                                                                               70.4s
+ => [build 9/9] RUN mkdir packages/backend/dist/skeleton packages/backend/dist/bundle     && tar xzf packages/backend/dist/skeleton.tar.gz -C packages/backend/dist/skeleton     &&  1.2s
+ => CACHED [stage-2 4/7] COPY --from=build --chown=node:node /app/yarn.lock /app/package.json /app/packages/backend/dist/skeleton/ ./                                                0.0s
+ => CACHED [stage-2 5/7] RUN --mount=type=cache,target=/home/node/.cache/yarn,sharing=locked,uid=1000,gid=1000     yarn install --frozen-lockfile --production --network-timeout 60  0.0s
+ => CACHED [stage-2 6/7] COPY --from=build --chown=node:node /app/packages/backend/dist/bundle/ ./                                                                                   0.0s
+ => [stage-2 7/7] COPY --chown=node:node app-config.yaml ./                                                                                                                          0.2s
+ => exporting to image                                                                                                                                                               0.0s
+ => => exporting layers                                                                                                                                                              0.0s
+ => => writing image sha256:e81fe459c2841429df65810a4eac8b77397c15eae050bef2b57460ec2f7abc8b                                                                                         0.0s
+ => => naming to docker.io/library/backstage-tentativa3                                                                                                                              0.0s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+
+- Nova imagem
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image ls
+REPOSITORY                                TAG                     IMAGE ID       CREATED              SIZE
+backstage-tentativa3                      latest                  e81fe459c284   About a minute ago   1.01GB
+<none>                                    <none>                  ab2bbae1faa9   2 hours ago          1.01GB
+<none>                                    <none>                  6991084d6825   7 days ago           249MB
+<none>                                    <none>                  7dbe71c18599   7 days ago           249MB
+docker-compose_backstage-app-mandragora   latest                  ae1e7d59f1a5   7 days ago           1.1GB
+<none>                                    <none>                  18f9cae4a259   7 days ago           197MB
+node                                      18.17.0-bullseye-slim   eb0946b189e9   10 days ago          248MB
+node                                      18.17                   0f9df951673d   10 days ago          1.09GB
+docker-compose_app-teste-fusionist        latest                  af2a7918abb4   13 days ago          197MB
+node                                      16-bullseye-slim        6b02cfd592ca   3 weeks ago          191MB
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+
+
+
+- Executando container
+docker run -it -p 7007:7007 backstage-tentativa3
+
+- Testando acesso via browser no Notebook, sem sucesso.
+http://192.168.0.110:7007/
+http://192.168.0.110:3000/
+
+- Nos logs do Container:
+
+~~~~bash
+{"documentType":"software-catalog","level":"info","message":"Collating documents for software-catalog succeeded","plugin":"search","service":"backstage","type":"plugin"}
+{"documentType":"techdocs","level":"warn","message":"Index for techdocs was not created: indexer received 0 documents","plugin":"search","service":"backstage","type":"plugin"}
+{"documentType":"techdocs","level":"info","message":"Collating documents for techdocs succeeded","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"192.168.0.109 - - [29/Jul/2023:21:11:08 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"192.168.0.109 - - [29/Jul/2023:21:11:13 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"192.168.0.109 - - [29/Jul/2023:21:11:29 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"192.168.0.109 - - [29/Jul/2023:21:11:31 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"192.168.0.109 - - [29/Jul/2023:21:11:39 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183\"","service":"backstage","type":"incomingRequest"}
+
+
+~~~~
+
+
+- Validando dentro do Container, a app-config pegou o endereço 0.0.0.0 na configuração, conforme esperado no build:
+
+~~~~bash
+
+fernando@debian10x64:~$
+fernando@debian10x64:~$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+44c71ab1f444   backstage-tentativa3   "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes   0.0.0.0:7007->7007/tcp, :::7007->7007/tcp   sweet_nightingale
+fernando@debian10x64:~$ docker exec -ti sweet_nightingale bash
+node@44c71ab1f444:/app$ cat app-config.yaml | head -n 22
+app:
+  title: Scaffolded Backstage App
+  baseUrl: http://localhost:3000
+
+organization:
+  name: My Company
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+node@44c71ab1f444:/app$ date
+Sat Jul 29 21:14:39 UTC 2023
+node@44c71ab1f444:/app$
+
+~~~~
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Ler
+https://roadie.io/blog/backstage-docker-service-catalog/
+
+- Efetuar commit e push da Docker image para o Docker Hub
+- Tentativa de abrir "http://192.168.0.110:7007/" não funciona, somente via browser do Debian. Verificar porque nao abre via notebook.
+      Listen para 0.0.0.0 não resolveu.
+      Efetuar commit e push da Docker image para o Docker Hub, depois tentar expor via Kubernetes.
+      Via Minikube "minikube service meu-ingress-controller-ingress-nginx-controller"	Expor um Service. OBS, Expõe o Service mas não gera um EXTERNAL-IP, é acessível na LAN da VM apenas.
+      Ou via EKS-ingress.
+      Avaliar maneira de abrir o Browser do Debian direto no Notebook.
+
+- Efetuar build usando a instalação feita via container com node18.17, instalação tá na pasta "backstage/backup-fernando-instalacao".
+- Ou instalação local via Debain mesmo, que está na pasta "backstage/docker/multi-stage/teste2/app-teste2".
+- Utilizar o Multi-Stage na primeira tentativa:
+        https://backstage.io/docs/deployment/docker/
+        https://github.com/backstage/demo/blob/master/Dockerfile
+- Ou tentar tutorial de 3 partes do blog:
+        https://john-tucker.medium.com/backstage-by-example-part-1-a18e74849240
+
+- Montar docker-compose com NodeJS semelhante a versão usada no doc sobre k8s da Backstage. Instalar o app do Backstage.
+- Caso necessário, usar repo "kubedev" como apoio, sobre Dockerfile, NodeJS, etc.
+- Buildar o APP do Backstage com estrutura via Docker-compose.
+- TSHOOT, erro do yarn install travado durante criação do APP do Backstage via npx.
+        https://backstage.io/docs/getting-started/create-an-app/
+        issue:
+        https://github.com/backstage/backstage/issues/18058
+        Analisar:
+        https://lightrun.com/answers/backstage-backstage-npx-backstagecreate-app-node-is-incompatible-with-this-module
+- Buildar imagem Docker, após APP ficar OK.
+- Personalizar "app-config.yaml"
+

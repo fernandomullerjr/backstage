@@ -774,6 +774,7 @@ app:
 ## PENDENTE
 
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- Efetuar commit e push da Docker image para o Docker Hub
 - Tratar erro no Deployment do Backstage, com imagem Dockerhub publica foi(pod ficou running), mas service não vai ficar OK, porque o "app-config.yaml" usa porta diferente do Container no k8s.
 - Buildar imagem Docker personalizada, contendo um "app-config.yaml" personalizado, usando a porta do container do Deployment do Backstage(7007).
 - Ver sobre build de imagem Docker personalizada para o Backstage
