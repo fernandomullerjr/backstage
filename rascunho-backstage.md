@@ -973,3 +973,237 @@ Sat 05 Aug 2023 05:09:44 PM -03
 fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
 
 ~~~~
+
+
+
+
+
+
+
+~~~~YAML
+# -f to tail, <pod> -c <container>
+$ kubectl logs --namespace=backstage -f backstage-54bfcd6476-n2jkm -c backstage
+~~~~
+
+
+- Editado:
+
+~~~~BASH
+
+# -f to tail, <pod> -c <container>
+kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
+
+~~~~
+
+
+
+
+## Creating a Backstage service
+
+Like the PostgreSQL service above, we need to create a Kubernetes Service for Backstage to handle connecting requests to the correct pods.
+
+Create the Kubernetes Service descriptor:
+
+~~~~YAML
+# kubernetes/backstage-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  selector:
+    app: backstage
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+~~~~
+
+The selector here is telling the Service which pods to target, and the port mapping translates normal HTTP port 80 to the backend http port (7007) on the pod.
+
+Apply this Service to the Kubernetes cluster:
+
+$ kubectl apply -f kubernetes/backstage-service.yaml
+service/backstage created
+
+Now we have a fully operational Backstage deployment! 🎉 For a grand reveal, you can forward a local port to the service:
+
+$ sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+Forwarding from 127.0.0.1:80 -> 7007
+
+This shows port 7007 since port-forward doesn't really support services, so it cheats by looking up the first pod for a service and connecting to the mapped pod port.
+
+Note that app.baseUrl and backend.baseUrl in your app-config.yaml should match what we're forwarding here (port omitted in this example since we're using the default HTTP port 80):
+
+# app-config.yaml
+app:
+  baseUrl: http://localhost
+
+organization:
+  name: Spotify
+
+backend:
+  baseUrl: http://localhost
+  listen:
+    port: 7007
+  cors:
+    origin: http://localhost
+
+If you're using an auth provider, it should also have this address configured for the authentication pop-up to work properly.
+
+Now you can open a browser on your machine to localhost and browse your Kubernetes-deployed Backstage instance. 
+
+
+
+
+
+kubectl apply -f backstage-service.yaml
+sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+
+
+sudo kubectl port-forward --namespace=backstage svc/backstage 8282:8282
+
+
+
+- ERRO
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f backstage-service.yaml
+service/backstage created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl port-forward --namespace=backstage svc/backstage 80:80
+Unable to listen on port 80: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:80: bind: permission denied unable to create listener: Error listen tcp6 [::1]:80: bind: permission denied]
+error: unable to listen on any of the requested ports: [{80 7007}]
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+[sudo] password for fernando:
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 8282:8282
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   172.20.0.1   <none>        443/TCP   51m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get svc -A
+NAMESPACE     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+backstage     backstage    ClusterIP   172.20.34.247   <none>        80/TCP          63s
+backstage     postgres     ClusterIP   172.20.63.248   <none>        5432/TCP        13m
+default       kubernetes   ClusterIP   172.20.0.1      <none>        443/TCP         51m
+kube-system   kube-dns     ClusterIP   172.20.0.10     <none>        53/UDP,53/TCP   51m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ date
+Sat 05 Aug 2023 05:17:31 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Tratar erros na console do EKS, erro de IAM, devido mudança de conta AWS. Detalhe, tem conta IAM e IAM-Identity-Center, ver como lidar.
+      A principio, resolvido, validar. lab7
+      Ajustar lab9
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Ver como expor Backstage via ingress, Load Balancer, etc
+- Verificar sobre PVC avançado.
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+
+
+
+
+
+
+
+
+
+
+
+- Ajustando o Service do Backstage
+porta
+80
+PARA:
+7007
+
+DE:
+
+~~~~YAML
+# kubernetes/backstage-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  selector:
+    app: backstage
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+~~~~
+
+
+PARA:
+
+~~~~YAML
+# kubernetes/backstage-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  selector:
+    app: backstage
+  ports:
+    - name: http
+      port: 7007
+      targetPort: http
+~~~~
+
+
+kubectl apply -f backstage-service.yaml
+
+
+
+
+
+
+
+sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f backstage-service.yaml
+service/backstage configured
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get svc -A
+NAMESPACE     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+backstage     backstage    ClusterIP   172.20.34.247   <none>        7007/TCP        11m
+backstage     postgres     ClusterIP   172.20.63.248   <none>        5432/TCP        23m
+default       kubernetes   ClusterIP   172.20.0.1      <none>        443/TCP         61m
+kube-system   kube-dns     ClusterIP   172.20.0.10     <none>        53/UDP,53/TCP   61m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
