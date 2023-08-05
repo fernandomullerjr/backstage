@@ -331,21 +331,23 @@ bash-5.1# exit
 kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
 
 ~~~~bash
-fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
 deployment.apps/postgres created
-fernando@debian10x64:~$
-fernando@debian10x64:~$
-fernando@debian10x64:~$ kubectl get pods --namespace=backstage
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                        READY   STATUS              RESTARTS   AGE
+postgres-77f59b67df-wxggr   0/1     ContainerCreating   0          5s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
 NAME                        READY   STATUS    RESTARTS   AGE
-postgres-77f59b67df-7wffm   1/1     Running   0          9s
-fernando@debian10x64:~$
+postgres-77f59b67df-wxggr   1/1     Running   0          29s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
 
 
 kubectl exec -it --namespace=backstage postgres-77f59b67df-7wffm -- /bin/bash
 
 psql -U $POSTGRES_USER
 
-fernando@debian10x64:~$ kubectl exec -it --namespace=backstage postgres-77f59b67df-7wffm -- /bin/bash
+fernando@debian10x64:~$ kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
 bash-5.1#
 bash-5.1#
 bash-5.1# psql -U $POSTGRES_USER
@@ -805,3 +807,169 @@ app:
 https://backstage.io/docs/deployment/k8s/#creating-a-namespace
 <https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
 
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+kubectl apply -f namespace.yaml
+
+
+- Criando senha personalizada
+
+~~~~bash
+fernando@debian10x64:~$ echo -n "lab123456" | base64
+bGFiMTIzNDU2
+fernando@debian10x64:~$
+
+~~~~
+
+
+- Editado.
+- Aplicando:
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+
+~~~~bash
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+secret/postgres-secrets created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get secrets -n backstage
+NAME                  TYPE                                  DATA   AGE
+default-token-4qcc6   kubernetes.io/service-account-token   3      76s
+postgres-secrets      Opaque                                2      5s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+~~~~
+
+
+
+- Aplicando
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+persistentvolume/postgres-storage created
+persistentvolumeclaim/postgres-storage-claim created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pv -n backstage
+NAME               CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                              STORAGECLASS   REASON   AGE
+postgres-storage   2G         RWO            Retain           Bound    backstage/postgres-storage-claim   manual                  14s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pvc -n backstage
+NAME                     STATUS   VOLUME             CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+postgres-storage-claim   Bound    postgres-storage   2G         RWO            manual         19s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+
+
+- Aplicando
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+
+~~~~bash
+fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+deployment.apps/postgres created
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ kubectl get pods --namespace=backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-77f59b67df-7wffm   1/1     Running   0          9s
+fernando@debian10x64:~$
+
+
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+
+psql -U $POSTGRES_USER
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+bash-5.1# psql -U $POSTGRES_USER
+psql (13.2)
+Type "help" for help.
+
+backstage=#
+
+
+
+~~~~
+
+
+
+
+
+
+- Aplicando:
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+
+~~~~bash
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+service/postgres created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get services --namespace=backstage
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+postgres   ClusterIP   172.20.63.248   <none>        5432/TCP   4s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+~~~~
+
+
+
+
+- Aplicando
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+secret/backstage-secrets created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get secret -n backstage
+NAME                  TYPE                                  DATA   AGE
+backstage-secrets     Opaque                                1      6s
+default-token-4qcc6   kubernetes.io/service-account-token   3      8m44s
+postgres-secrets      Opaque                                2      7m33s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+~~~~
+
+
+
+
+- Editado deployment do Backstage.
+- Aplicando:
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+deployment.apps/backstage created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get deployments --namespace=backstage
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+backstage   0/1     1            0           4s
+postgres    1/1     1            1           4m25s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS              RESTARTS   AGE
+backstage-854df67b6c-fmvcz   0/1     ContainerCreating   0          9s
+postgres-77f59b67df-wxggr    1/1     Running             0          4m30s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS              RESTARTS   AGE
+backstage-854df67b6c-fmvcz   0/1     ContainerCreating   0          16s
+postgres-77f59b67df-wxggr    1/1     Running             0          4m37s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS    RESTARTS   AGE
+backstage-854df67b6c-fmvcz   1/1     Running   0          4m56s
+postgres-77f59b67df-wxggr    1/1     Running   0          9m17s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ date
+Sat 05 Aug 2023 05:09:44 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~

@@ -17,7 +17,8 @@ spec:
       containers:
         - name: backstage
           #image: backstage:1.0.0
-          image: socialchorus/backstage:latest
+          #image: socialchorus/backstage:latest
+          image: fernandomj90/backstage-mandragora:v3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
