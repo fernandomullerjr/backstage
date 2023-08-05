@@ -3016,6 +3016,8 @@ node@44c71ab1f444:/app$
 
 - Ler
 https://roadie.io/blog/backstage-docker-service-catalog/
+https://backstage.spotify.com/learn/standing-up-backstage/
+https://backstage.io/docs/conf/writing/
 
 - Efetuar commit e push da Docker image para o Docker Hub
 - Tentativa de abrir "http://192.168.0.110:7007/" não funciona, somente via browser do Debian. Verificar porque nao abre via notebook.
@@ -3045,3 +3047,111 @@ https://roadie.io/blog/backstage-docker-service-catalog/
 - Buildar imagem Docker, após APP ficar OK.
 - Personalizar "app-config.yaml"
 
+
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 05/08/2023
+
+
+- Novo build
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t backstage-mandragora .
+docker run -it -p 7007:7007 backstage-mandragora
+
+
+
+- Efetuar commit e push da Docker image para o Docker Hub
+docker commit <nome-ou-id-do-container> ubuntu-curl-commit	Imagem	Commit	Comando para fazer o docker commit, salvando o estado do Container numa imagem.
+
+When you build them, using docker build -t <hub-user>/<repo-name>[:<tag>]
+
+By re-tagging an existing local image docker tag <existing-image> <hub-user>/<repo-name>[:<tag>]
+
+By using docker commit <existing-container> <hub-user>/<repo-name>[:<tag>] to commit changes
+
+Now you can push this repository to the registry designated by its name or tag.
+
+$ docker push <hub-user>/<repo-name>:<tag>
+The image is then uploaded and available for use by your teammates and/or the community.
+
+
+docker tag backstage-mandragora fernandomj90/backstage-mandragora:v2
+
+fernando@debian10x64:~$ docker ps
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                       NAMES
+59b6a7c41968   backstage-mandragora   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   0.0.0.0:7007->7007/tcp, :::7007->7007/tcp   angry_gates
+fernando@debian10x64:~$
+
+docker commit 59b6a7c41968 fernandomj90/backstage-mandragora:v3
+
+
+fernando@debian10x64:~$ docker image ls
+REPOSITORY                           TAG                     IMAGE ID       CREATED         SIZE
+fernandomj90/backstage-mandragora    v3                      df229c7d8995   4 seconds ago   1.01GB
+fernandomj90/backstage-mandragora    v2                      e81fe459c284   6 days ago      1.01GB
+backstage-mandragora                 latest                  e81fe459c284   6 days ago      1.01GB
+backstage-tentativa3                 latest                  e81fe459c284   6 days ago      1.01GB
+<none>                               <none>                  ab2bbae1faa9   7 days ago      1.01GB
+<none>                               <none>                  6991084d6825   13 days ago     249MB
+<none>                               <none>                  7dbe71c18599   13 days ago     249MB
+<none>                               <none>                  18f9cae4a259   2 weeks ago     197MB
+node                                 18.17.0-bullseye-slim   eb0946b189e9   2 weeks ago     248MB
+node                                 18.17                   0f9df951673d   2 weeks ago     1.09GB
+docker-compose_app-teste-fusionist   latest                  af2a7918abb4   2 weeks ago     197MB
+node                                 16-bullseye-slim        6b02cfd592ca   4 weeks ago     191MB
+gcr.io/k8s-minikube/kicbase          v0.0.27                 9fa1cc16ad6d   22 months ago   1.08GB
+fernando@debian10x64:~$ date
+Sat 05 Aug 2023 04:38:20 PM -03
+fernando@debian10x64:~$
+
+
+docker push <hub-user>/<repo-name>:<tag>
+docker push fernandomj90/backstage-mandragora:v3
+
+
+fernando@debian10x64:~$ docker login
+Authenticating with existing credentials...
+WARNING! Your password will be stored unencrypted in /home/fernando/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+fernando@debian10x64:~$
+
+
+docker push fernandomj90/backstage-mandragora:v3
+
+
+
+
+fernando@debian10x64:~$ docker push fernandomj90/backstage-mandragora:v3
+The push refers to repository [docker.io/fernandomj90/backstage-mandragora]
+33a6ee2549f9: Pushed
+db4157ce807b: Pushed
+ccf42828e54f: Pushed
+f7d9559dab6e: Pushed
+ba18ff0e8af7: Pushed
+7e4519697b19: Pushed
+ac4716367973: Pushed
+4b497447f3f1: Mounted from library/node
+98342cba36b0: Mounted from library/node
+ec66eb809bcb: Mounted from library/node
+de28499355cf: Mounted from library/node
+4b3ba104e9a8: Mounted from library/node
+v3: digest: sha256:06c7adeafea135d68e676af14a7c88baa8af93076484f208885144c469f685cc size: 2839
+fernando@debian10x64:~$
