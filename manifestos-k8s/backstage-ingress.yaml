@@ -5,7 +5,7 @@ metadata:
   namespace: backstage
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/target-type: ip # IP – Registers Pods as targets for the ALB. Traffic reaching the ALB is directly routed to Pods for your service. You must specify the alb.ingress.kubernetes.io/target-type: ip annotation to use this traffic mode. The IP target type is required when target Pods are running on Fargate.
     alb.ingress.kubernetes.io/scheme: internet-facing
 spec:
   rules:

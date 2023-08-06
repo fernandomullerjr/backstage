@@ -1613,3 +1613,135 @@ PÁGINA FICA CARREGANDO, tem titulo, mas nao mostra nada
 {"level":"info","message":"10.0.2.170 - - [06/Aug/2023:23:34:54 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
 {"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:57 +0000] \"GET 
 ~~~~
+
+
+
+git status
+eval $(ssh-agent -s)
+ssh-add /home/fernando/.ssh/chave-debian10-github
+git add -u
+git reset -- manifestos-k8s/backstage-secrets.yaml
+git commit -m "Backstage lab. Aplicação no K8S, ALB ON, mas página não abre ainda."
+git push
+git status
+
+
+
+
+
+- Comentando o trecho sobre ip no alb
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+- ERRO
+
+~~~~BASH
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl describe ingress -n backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:          k8s-backstag-backstag-c3e6f62e16-1248054694.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (10.0.2.56:7007)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              kubernetes.io/ingress.class: alb
+Events:
+  Type     Reason                  Age                    From     Message
+  ----     ------                  ----                   ----     -------
+  Normal   SuccessfullyReconciled  5m51s (x2 over 9m37s)  ingress  Successfully reconciled
+  Warning  FailedDeployModel       2s (x13 over 27s)      ingress  Failed deploy model due to InvalidParameter: 1 validation error(s) found.
+- minimum field value of 1, CreateTargetGroupInput.Port.
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+- Efetuando delete e aplicando novamente:
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress -n backstage backstage-ingress
+
+kubectl describe ingress -n backstage backstage-ingress
+
+- Segue com erro:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+ingress.networking.k8s.io "backstage-ingress" deleted
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io/backstage-ingress created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage backstage-ingress
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      8s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl describe ingress -n backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (10.0.2.56:7007)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              kubernetes.io/ingress.class: alb
+Events:
+  Type     Reason             Age                From     Message
+  ----     ------             ----               ----     -------
+  Warning  FailedDeployModel  5s (x11 over 13s)  ingress  Failed deploy model due to InvalidParameter: 1 validation error(s) found.
+- minimum field value of 1, CreateTargetGroupInput.Port.
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+- Removendo comentário no parametro "alb.ingress.kubernetes.io/target-type: ip" do ingress.
+- Efetuando delete e aplicando novamente:
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress -n backstage backstage-ingress
+
+kubectl describe ingress -n backstage backstage-ingress
+
+
+Provisioning
+
+kubectl exec -ti backstage-854df67b6c-bcb4m -n backstage -- sh
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- Ingress OK, porém a página do Backstage não abre, fica em branco, só consta o titulo da página.
+      Verificar como montar uma pipeline
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Verificar sobre PVC avançado.
+      https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
