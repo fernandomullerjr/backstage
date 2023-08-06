@@ -22,6 +22,52 @@ git status
 
 
 
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## COMANDOS
+
+- Subindo Backstage via Kubernetes:
+
+https://backstage.io/docs/deployment/k8s/#creating-a-namespace
+<https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+kubectl apply -f namespace.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl get secrets -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl get pv -n backstage
+kubectl get pvc -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl get pods --namespace=backstage
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+psql -U $POSTGRES_USER
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl get services --namespace=backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl get secret -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
+
+
+
+
+
+
+
+
 
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -1207,3 +1253,50 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
 fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
 The connection to the server localhost:8080 was refused - did you specify the right host or port?
 fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 06/08/2023
+
+- Testando deployment via Kubernetes no cluster EKS
+
+https://backstage.io/docs/deployment/k8s/#creating-a-namespace
+<https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
+
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+kubectl apply -f namespace.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl get secrets -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl get pv -n backstage
+kubectl get pvc -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl get pods --namespace=backstage
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+psql -U $POSTGRES_USER
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl get services --namespace=backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl get secret -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
