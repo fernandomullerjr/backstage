@@ -1343,3 +1343,273 @@ fernando@debian10x64:~$
 - Subir ALB na AWS.
 - Ajustado o Service.
 - Ver sobre ingress-controller antes.
+
+- Ajustado o manifesto do Service, para NodePort e o nome dele:
+
+~~~~YAML
+# kubernetes/backstage-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  selector:
+    app: backstage
+  type: NodePort
+  ports:
+    - name: backstage-port
+      #port: 80
+      port: 7007
+      targetPort: 7007
+~~~~
+
+
+Claro! Aqui está um exemplo de manifesto em YAML para criar um Ingress no Kubernetes e configurar um Application Load Balancer (ALB) na AWS:
+
+~~~~yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meu-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: meu-app-service
+                port:
+                  number: 80
+~~~~
+
+Neste exemplo, você precisa substituir algumas partes para se adequar ao seu ambiente:
+
+    metadata.name: Escolha um nome adequado para o seu Ingress.
+    annotations: Essas são as anotações específicas do ALB para configurar o Ingress com o Load Balancer correto.
+    backend.service.name: Substitua por o nome do serviço Kubernetes que você deseja expor.
+    backend.service.port.number: Substitua pelo número da porta do serviço que você deseja expor.
+
+Certifique-se de que você já tenha configurado um serviço Kubernetes para o aplicativo que você deseja expor antes de criar o Ingress. Lembre-se também de que, para utilizar o Ingress com o ALB na AWS, você precisará ter o controlador do ALB instalado e configurado no seu cluster Kubernetes.
+
+Após criar esse manifesto, você pode aplicá-lo ao cluster Kubernetes executando o seguinte comando:
+
+bash
+
+kubectl apply -f nome-do-arquivo.yaml
+
+Isso criará o Ingress e, por consequência, configurará o Application Load Balancer na AWS para direcionar o tráfego para o seu serviço Kubernetes. Certifique-se de ter as permissões corretas na AWS para criar e gerenciar recursos do ALB.
+
+- Editado:
+backstage/manifestos-k8s/backstage-ingress.yaml
+
+~~~~YAML
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backstage-ingress
+  namespace: backstage
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backstage
+                port:
+                  number: 7007
+~~~~
+
+- Aplicando:
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl get ingress -n backstage
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io/backstage-ingress created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      13s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+- Erros:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io/backstage-ingress created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      13s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      44s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage backstage-ingress
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      78s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl describe ingress -n backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (10.0.2.56:7007)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              alb.ingress.kubernetes.io/target-type: ip
+              kubernetes.io/ingress.class: alb
+Events:
+  Type     Reason             Age   From     Message
+  ----     ------             ----  ----     -------
+  Warning  FailedDeployModel  84s   ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: dd7f673b-1c1f-46c8-8eab-dec938cbba60
+  Warning  FailedDeployModel  83s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 4d34b2a6-0d33-46ad-ba2f-0317de532b50
+  Warning  FailedDeployModel  83s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: aa3c56a3-3ea6-4bde-b24e-b6eb62967d60
+  Warning  FailedDeployModel  82s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 650a17a0-837c-4beb-9e1e-3d235a322a3f
+  Warning  FailedDeployModel  82s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 9666467d-c036-44e3-988b-04ebba359f07
+  Warning  FailedDeployModel  82s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: ac35e626-16c3-4ca8-aed6-cc54b7075ca3
+  Warning  FailedDeployModel  81s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: b25c7c30-c80f-4ed0-948e-7cad43139f8c
+  Warning  FailedDeployModel  81s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 4ebba1f9-e079-44a8-86db-b9246566c173
+  Warning  FailedDeployModel  80s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: b4a3b290-11c6-443c-9acb-829e5faadd0d
+  Warning  FailedDeployModel  39s (x5 over 78s)  ingress  (combined from similar events): Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691364252014129032 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:targetgroup/k8s-backstag-backstag-16938504f4/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 34f50e9f-5d53-44e2-b7ff-6a030c0263f1
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+- Verificando o tf state:
+/home/fernando/cursos/terraform/eks-via-terraform-github-actions/09-eks-blueprint/terraform.tfstate
+
+existe a role mencionada no erro
+
+~~~~JSON
+
+          "attributes": {
+            "arn": "arn:aws:iam::552925778543:role/eks-lab-aws-load-balancer-controller-sa-irsa",
+            "assume_role_policy": "{\"Statement\":[{\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringLike\":{\"oidc.eks.us-east-1.amazonaws.com/id/FD1565A379BE9415D1118FCA12B29A53:aud\":\"sts.amazonaws.com\",\"oidc.eks.us-east-1.amazonaws.com/id/FD1565A379BE9415D1118FCA12B29A53:sub\":\"system:serviceaccount:kube-system:aws-load-balancer-controller-sa\"}},\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"arn:aws:iam::552925778543:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/FD1565A379BE9415D1118FCA12B29A53\"}}],\"Version\":\"2012-10-17\"}",
+            "create_date": "2023-08-06T21:12:09Z",
+            "description": "AWS IAM Role for the Kubernetes service account aws-load-balancer-controller-sa.",
+            "force_detach_policies": true,
+            "id": "eks-lab-aws-load-balancer-controller-sa-irsa",
+            "inline_policy": [],
+            "managed_policy_arns": [],
+            "max_session_duration": 3600,
+            "name": "eks-lab-aws-load-balancer-controller-sa-irsa",
+            "name_prefix": "",
+            "path": "/",
+            "permissions_boundary": "",
+            "tags": null,
+            "tags_all": {},
+            "unique_id": "AROAYBPHR2JX6L3SWV4DM"
+          },
+~~~~
+
+
+- Anexando policy
+ElasticLoadBalancingFullAccess
+
+- Testando
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl get ingress -n backstage
+kubectl describe ingress -n backstage backstage-ingress
+
+- OK, agora parece estar tudo OK com o ingress:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io "backstage-ingress" deleted
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io/backstage-ingress created
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1248054694.us-east-1.elb.amazonaws.com   80      6s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl describe ingress -n backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:          k8s-backstag-backstag-c3e6f62e16-1248054694.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (10.0.2.56:7007)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              alb.ingress.kubernetes.io/target-type: ip
+              kubernetes.io/ingress.class: alb
+Events:
+  Type    Reason                  Age   From     Message
+  ----    ------                  ----  ----     -------
+  Normal  SuccessfullyReconciled  21s   ingress  Successfully reconciled
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ date
+Sun 06 Aug 2023 08:31:54 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+
+- ALB
+k8s-backstag-backstag-c3e6f62e16-1248054694.us-east-1.elb.amazonaws.com
+
+k8s-backstag-backstag-c3e6f62e16-1248054694.us-east-1.elb.amazonaws.com
+
+PÁGINA FICA CARREGANDO, tem titulo, mas nao mostra nada
+
+- Logs do Pod do Backstage:
+
+~~~~bash
+
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:33:57 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.1.120 - - [06/Aug/2023:23:34:09 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.2.170 - - [06/Aug/2023:23:34:09 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:12 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.1.120 - - [06/Aug/2023:23:34:24 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.2.170 - - [06/Aug/2023:23:34:24 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:27 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"entity":"location:default/generated-eeed3503740b7c4b80f2aad3e417fafee7a3803d","level":"warn","location":"file:/examples/entities.yaml","message":"file /examples/entities.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-0ca6551527608b8e42ccccd463f27d4113d35ff1","level":"warn","location":"file:/examples/org.yaml","message":"file /examples/org.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"level":"info","message":"10.0.1.120 - - [06/Aug/2023:23:34:39 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.2.170 - - [06/Aug/2023:23:34:39 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:42 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:48 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.1.120 - - [06/Aug/2023:23:34:54 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.2.170 - - [06/Aug/2023:23:34:54 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"ELB-HealthChecker/2.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"10.0.0.234 - - [06/Aug/2023:23:34:57 +0000] \"GET 
+~~~~
