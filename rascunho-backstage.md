@@ -1268,6 +1268,20 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
 # ####################################################################################################################################################
 ## Dia 06/08/2023
 
+
+aws eks --region us-east-1 update-kubeconfig --name eks-lab
+
+Apply complete! Resources: 8 added, 1 changed, 7 destroyed.
+
+Outputs:
+
+configure_kubectl = "aws eks --region us-east-1 update-kubeconfig --name eks-lab"
+vpc_id = "vpc-0a9f90de740c75f4f"
+fernando@debian10x64:~/cursos/terraform/eks-via-terraform-github-actions/09-eks-blueprint$ aws eks --region us-east-1 update-kubeconfig --name eks-lab
+Updated context arn:aws:eks:us-east-1:552925778543:cluster/eks-lab in /home/fernando/.kube/config
+fernando@debian10x64:~/cursos/terraform/eks-via-terraform-github-actions/09-eks-blueprint$
+
+
 - Testando deployment via Kubernetes no cluster EKS
 
 https://backstage.io/docs/deployment/k8s/#creating-a-namespace
@@ -1299,4 +1313,33 @@ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/ba
 kubectl get deployments --namespace=backstage
 kubectl get pods --namespace=backstage
 
-kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
+kubectl logs --namespace=backstage -f backstage-854df67b6c-bcb4m -c backstage
+
+kubectl apply -f backstage-service.yaml
+sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+kubectl get services --namespace=backstage
+
+sudo kubectl port-forward --namespace=backstage svc/backstage 8282:8282
+kubectl get services --namespace=backstage
+
+
+port-f
+
+sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+
+
+- ERRO
+
+~~~~BASH
+fernando@debian10x64:~$ sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+[sudo] password for fernando:
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+fernando@debian10x64:~$
+~~~~
+
+
+
+- Ver sobre ingress-controller antes.
+- Subir ALB na AWS.
+- Ajustado o Service.
+- Ver sobre ingress-controller antes.
