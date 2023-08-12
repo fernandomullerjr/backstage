@@ -71,7 +71,7 @@ ElasticLoadBalancingFullAccess
 kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
 kubectl get ingress --namespace=backstage
 
-
+- Buildar Docker Image com URL atualizada do ALB.
 
 
 
@@ -2208,5 +2208,36 @@ http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com/c
 
 
 
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+- Subir LAB e seguir configuração do Backstage:
+        https://backstage.io/docs/getting-started/configuration
+        Configurar integraçaõ com GitHub.
+        Subir aplicativo e Template de teste.
+        Ler restante da documentação do Backstage.
+- LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+- Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida.
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Verificar sobre PVC avançado.
+      https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
 
 
