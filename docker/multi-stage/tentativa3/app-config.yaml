@@ -1,6 +1,6 @@
 app:
   title: Scaffolded Backstage App
-  baseUrl: http://localhost:3000
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
 
 organization:
   name: My Company
@@ -12,17 +12,18 @@ backend:
   # auth:
   #   keys:
   #     - secret: ${BACKEND_SECRET}
-  baseUrl: http://localhost:7007
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
   listen:
     port: 7007
     # Uncomment the following host directive to bind to specific interfaces
     host: 0.0.0.0
   csp:
     connect-src: ["'self'", 'http:', 'https:']
+    upgrade-insecure-requests: false # For tutorial purposes only
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   cors:
-    origin: http://localhost:3000
+    origin: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com:3000
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
   # This is for local development only, it is not recommended to use this in production

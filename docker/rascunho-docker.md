@@ -47,6 +47,18 @@ DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
 - Executando container
 docker run -it -p 7007:7007 backstage-tentativa3
 
+- Push de Container
+https://dev.to/pmutua/pushing-a-docker-container-image-to-docker-hub-m3p
+docker build -t <hub-user>/<repo-name>[:<tag>]
+docker tag <existing-image> <hub-user>/<repo-name>[:<tag>]
+docker commit <existing-container> <hub-user>/<repo-name>[:<tag>] 
+docker push <hub-user>/<repo-name>:<tag>
+
+- RESUMO
+Buildando e efetuando Push ao Docker Hub
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v4 .
+docker push fernandomj90/backstage-mandragora:v4
 
 
 
@@ -3155,3 +3167,111 @@ de28499355cf: Mounted from library/node
 4b3ba104e9a8: Mounted from library/node
 v3: digest: sha256:06c7adeafea135d68e676af14a7c88baa8af93076484f208885144c469f685cc size: 2839
 fernando@debian10x64:~$
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 06/08/2023
+
+
+- Novo build
+ajustado baseurl
+baseUrl: http://k8s-backstag-backstag-c3e6f62e16-370703358.us-east-1.elb.amazonaws.com:7007
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v4 .
+docker push fernandomj90/backstage-mandragora:v4
+
+
+~~~~bash
+
+                                                                                 0.0s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker image ls
+REPOSITORY                           TAG                     IMAGE ID       CREATED         SIZE
+fernandomj90/backstage-mandragora    v4                      ccfb27d03cb7   5 minutes ago   1.01GB
+fernandomj90/backstage-mandragora    v3                      df229c7d8995   29 hours ago    1.01GB
+backstage-tentativa3                 latest                  e81fe459c284   8 days ago      1.01GB
+fernandomj90/backstage-mandragora    v2                      e81fe459c284   8 days ago      1.01GB
+backstage-mandragora                 latest                  e81fe459c284   8 days ago      1.01GB
+<none>                               <none>                  ab2bbae1faa9   8 days ago      1.01GB
+<none>                               <none>                  6991084d6825   2 weeks ago     249MB
+<none>                               <none>                  7dbe71c18599   2 weeks ago     249MB
+<none>                               <none>                  18f9cae4a259   2 weeks ago     197MB
+node                                 18.17.0-bullseye-slim   eb0946b189e9   2 weeks ago     248MB
+node                                 18.17                   0f9df951673d   2 weeks ago     1.09GB
+docker-compose_app-teste-fusionist   latest                  af2a7918abb4   3 weeks ago     197MB
+node                                 16-bullseye-slim        6b02cfd592ca   4 weeks ago     191MB
+gcr.io/k8s-minikube/kicbase          v0.0.27                 9fa1cc16ad6d   22 months ago   1.08GB
+
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker push fernandomj90/backstage-mandragora:v4
+The push refers to repository [docker.io/fernandomj90/backstage-mandragora]
+1bf075bdc031: Pushed
+82bd28422cf7: Pushed
+f7d9559dab6e: Layer already exists
+ba18ff0e8af7: Layer already exists
+7e4519697b19: Layer already exists
+ac4716367973: Layer already exists
+4b497447f3f1: Layer already exists
+98342cba36b0: Layer already exists
+ec66eb809bcb: Layer already exists
+de28499355cf: Layer already exists
+4b3ba104e9a8: Layer already exists
+v4: digest: sha256:11a42e4efc6d4fa22e2996deedc21d2cb14ca883b2d76ad1a335a9650662c19f size: 2629
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
+
+
+- Upload ok
+https://hub.docker.com/repository/docker/fernandomj90/backstage-mandragora/general
+<https://hub.docker.com/repository/docker/fernandomj90/backstage-mandragora/general>
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 12/08/2023
+
+- Novo build
+ajustado baseurl
+baseUrl: http://k8s-backstag-backstag-c3e6f62e16-370703358.us-east-1.elb.amazonaws.com:7007
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v5 .
+docker push fernandomj90/backstage-mandragora:v5
+
+
+- Ad
+
+
+
+
+
+
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v6 .
+docker push fernandomj90/backstage-mandragora:v6

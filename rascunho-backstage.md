@@ -61,6 +61,15 @@ kubectl get pods --namespace=backstage
 
 kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
 
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-service.yaml
+kubectl get services --namespace=backstage
+sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+
+- Anexando policy AWS Managed abaixo na role "arn:aws:iam::552925778543:role/eks-lab-aws-load-balancer-controller-sa-irsa":
+ElasticLoadBalancingFullAccess
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress --namespace=backstage
 
 
 
@@ -1719,6 +1728,8 @@ Provisioning
 kubectl exec -ti backstage-854df67b6c-bcb4m -n backstage -- sh
 
 
+image: fernandomj90/backstage-mandragora:v3	
+Imagem buildada que funciona no local da VM do Debian o acesso via navegador. Não funciona via ALB, devido o valor do "baseUrl" ser localhost.
 
 
 
@@ -1735,7 +1746,8 @@ kubectl exec -ti backstage-854df67b6c-bcb4m -n backstage -- sh
 
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
 - Ingress OK, porém a página do Backstage não abre, fica em branco, só consta o titulo da página.
-      Verificar como montar uma pipeline
+      Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida.
+      Buildar imagem com valor do "baseUrl" sendo o DNS NAME do ALB.
 - Erro ao tentar expor Backstage via "kubectl port-forward". 
       ERRO:
       "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
@@ -1745,3 +1757,456 @@ kubectl exec -ti backstage-854df67b6c-bcb4m -n backstage -- sh
       https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
 - Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+
+
+
+
+
+
+
+
+
+
+
+
+- Ingress OK, porém a página do Backstage não abre, fica em branco, só consta o titulo da página.
+      Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida.
+      Buildar imagem com valor do "baseUrl" sendo o DNS NAME do ALB.
+
+
+
+
+- Ajustado para o v4 no Deployment do Backstage
+fernandomj90/backstage-mandragora:v4
+
+- Aplicando
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+deployment.apps/backstage configured
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get deployments --namespace=backstage
+
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+backstage   1/1     1            1           172m
+postgres    1/1     1            1           178m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                         READY   STATUS        RESTARTS   AGE
+backstage-854df67b6c-bcb4m   1/1     Terminating   0          172m
+backstage-857684b4b8-6rlp6   1/1     Running       0          7s
+postgres-77f59b67df-s6vvd    1/1     Running       0          178m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ date
+Sun 06 Aug 2023 09:15:59 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+~~~~
+
+
+
+
+kubectl logs --namespace=backstage -f backstage-854df67b6c-bcb4m -c backstage
+kubectl logs --namespace=backstage -f backstage-857684b4b8-6rlp6 -c backstage
+
+
+
+Inbound security group rules successfully modified on security group (sg-00e851dc559ad9135 | k8s-traffic-ekslab-2b77b87e46)
+Details
+
+    New
+
+
+Inbound security group rules successfully modified on security group (sg-0d2d20986864f05f4 | k8s-backstag-backstag-6d4c15e58c)
+Details
+
+    New
+
+
+
+- Ao tentar abrir via navegador, segue com página em branco só com titulo:
+http://k8s-backstag-backstag-c3e6f62e16-370703358.us-east-1.elb.amazonaws.com/
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+- Ingress OK, porém a página do Backstage não abre, fica em branco, só consta o titulo da página.
+      Buildar imagem com valor do "baseUrl" sendo o DNS NAME do ALB. Exemplo: fernandomj90/backstage-mandragora:v4
+      Verificar sobre app-config e parametro "upgrade-insecure-requests", página: https://roadie.io/blog/backstage-fargate-up-and-running/
+      LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+      Revisar Security Groups, ALB e EC2. Encaminhamento de portas do ALB e TargetGroup.
+- Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida.
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Verificar sobre PVC avançado.
+      https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 12/08/2023
+
+- Ingress OK, porém a página do Backstage não abre, fica em branco, só consta o titulo da página.
+      Buildar imagem com valor do "baseUrl" sendo o DNS NAME do ALB. Exemplo: fernandomj90/backstage-mandragora:v4
+      Verificar sobre app-config e parametro "upgrade-insecure-requests", página: https://roadie.io/blog/backstage-fargate-up-and-running/
+      LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+      Revisar Security Groups, ALB e EC2. Encaminhamento de portas do ALB e TargetGroup.
+
+
+
+- Subindo Backstage via Kubernetes:
+
+https://backstage.io/docs/deployment/k8s/#creating-a-namespace
+<https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+kubectl apply -f namespace.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl get secrets -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl get pv -n backstage
+kubectl get pvc -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl get pods --namespace=backstage
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+psql -U $POSTGRES_USER
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl get services --namespace=backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl get secret -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-857684b4b8-vvh5w -c backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress --namespace=backstage
+
+
+
+- ERROS NO INGRESS:
+
+~~~~BASH
+           status code: 403, request id: 8864b7cb-81a6-43ec-b00f-3d13d9ecec65
+  Warning  FailedDeployModel  45s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691879688087945211 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:loadbalancer/app/k8s-backstag-backstag-c3e6f62e16/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 663d293f-6ae0-4e0c-8407-e3d59880eb02
+  Warning  FailedDeployModel  44s  ingress  Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691879688087945211 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:loadbalancer/app/k8s-backstag-backstag-c3e6f62e16/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: ba26be67-1f40-4951-be27-3ad1573c62fc
+  Warning  FailedDeployModel  3s (x5 over 42s)  ingress  (combined from similar events): Failed deploy model due to AccessDenied: User: arn:aws:sts::552925778543:assumed-role/eks-lab-aws-load-balancer-controller-sa-irsa/1691879688087945211 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:552925778543:loadbalancer/app/k8s-backstag-backstag-c3e6f62e16/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+           status code: 403, request id: 1e5e8ad0-05c9-403f-952d-745bf8de5d63
+fernando@debian10x64:~$
+
+~~~~
+
+
+- Anexando policy AWS Managed abaixo na role "arn:aws:iam::552925778543:role/eks-lab-aws-load-balancer-controller-sa-irsa":
+ElasticLoadBalancingFullAccess
+
+- Testando
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl get ingress -n backstage
+kubectl describe ingress -n backstage backstage-ingress
+
+- Agora gerou a URL:
+
+~~~~BASH
+
+fernando@debian10x64:~$ kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+ingress.networking.k8s.io "backstage-ingress" deleted
+fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+ingress.networking.k8s.io/backstage-ingress created
+fernando@debian10x64:~$
+fernando@debian10x64:~$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS   PORTS   AGE
+backstage-ingress   <none>   *                 80      1s
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ kubectl get ingress -n backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com   80      31s
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ date
+Sat 12 Aug 2023 07:39:35 PM -03
+fernando@debian10x64:~$
+
+~~~~
+
+
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+
+
+
+
+
+
+
+
+k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+
+- Ao tentar abrir o Backstage via navegador:
+k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+
+Backend service does not exist
+
+
+
+
+
+
+kubectl logs --namespace=backstage -f backstage-75f785b69c-zwxdw -c backstage
+
+
+
+
+- Verificando na AWS Console
+esta mensagem "Backend service does not exist" é mensagem fixa do ALB, ele não criou o TargetGroup para associar no Listener:
+
+"Return fixed response
+
+    Response code: 503
+    Response body: Backend service does not exist
+    Response content type: text/plain"
+
+- Não existem TargetGroups criados.
+
+
+
+kubectl get ingress --namespace=backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress --namespace=backstage
+
+kubectl describe ingress --namespace=backstage backstage-ingress
+
+~~~~bash
+
+fernando@debian10x64:~$ kubectl describe ingress --namespace=backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:          k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (<error: endpoints "backstage" not found>)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              kubernetes.io/ingress.class: alb
+Events:
+  Type    Reason                  Age                From     Message
+  ----    ------                  ----               ----     -------
+  Normal  SuccessfullyReconciled  21s (x2 over 37m)  ingress  Successfully reconciled
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ date
+Sat 12 Aug 2023 08:16:28 PM -03
+fernando@debian10x64:~$
+~~~~
+
+
+- Criando Service
+
+~~~~bash
+fernando@debian10x64:~$ kubectl get services --namespace=backstage
+NAME       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+postgres   ClusterIP   172.20.126.185   <none>        5432/TCP   44m
+fernando@debian10x64:~$ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-service.yaml
+service/backstage created
+fernando@debian10x64:~$ kubectl get services --namespace=backstage
+NAME        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+backstage   NodePort    172.20.252.62    <none>        7007:32071/TCP   11s
+postgres    ClusterIP   172.20.126.185   <none>        5432/TCP         46m
+fernando@debian10x64:~$
+~~~~
+
+
+- Agora o ingress achou o ip do 
+
+~~~~bash
+fernando@debian10x64:~$ kubectl describe ingress --namespace=backstage backstage-ingress
+Name:             backstage-ingress
+Labels:           <none>
+Namespace:        backstage
+Address:          k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+Default backend:  default-http-backend:80 (<error: endpoints "default-http-backend" not found>)
+Rules:
+  Host        Path  Backends
+  ----        ----  --------
+  *
+              /   backstage:7007 (10.0.0.164:7007)
+Annotations:  alb.ingress.kubernetes.io/scheme: internet-facing
+              kubernetes.io/ingress.class: alb
+Events:
+  Type    Reason                  Age                From     Message
+  ----    ------                  ----               ----     -------
+  Normal  SuccessfullyReconciled  33s (x3 over 40m)  ingress  Successfully reconciled
+fernando@debian10x64:~$
+fernando@debian10x64:~$
+fernando@debian10x64:~$ date
+Sat 12 Aug 2023 08:19:43 PM -03
+fernando@debian10x64:~$
+~~~~
+
+
+
+
+- Na console AWS
+criou o TargetGroup corretamente
+Target group: k8s-backstag-backstag-6328999918
+ALB já associou no Listener o TargetGroup
+
+
+
+
+
+
+- Abrindo URL do Load Balancer, mesmo sintoma, página em branco com titulo "Scaffold":
+http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com/
+
+
+
+- Ajustando app-config e upando nova Docker Image:
+
+DE:
+
+~~~~YAML
+app:
+  title: Scaffolded Backstage App
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com:3000
+
+organization:
+  name: My Company
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com:7007
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+~~~~
+
+
+PARA:
+
+~~~~YAML
+app:
+  title: Scaffolded Backstage App
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+
+organization:
+  name: My Company
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    upgrade-insecure-requests: false # For tutorial purposes only
+~~~~
+
+
+- Foi editado:
+      url, removidas as portas
+      adicionado o "upgrade-insecure-requests: false"
+
+
+- Buildando:
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v6 .
+docker push fernandomj90/backstage-mandragora:v6
+
+
+- Ajustando o Deployment:
+
+          image: fernandomj90/backstage-mandragora:v6
+
+
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-54bb7f778-lspmx -c backstage
+
+
+
+- Testando
+- Abrindo URL do ALB:
+k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com
+
+- OK!
+- Abriu a página do Backstage:
+http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com/catalog?filters%5Bkind%5D=component&filters%5Buser%5D=all
+
+
+
+
+
+
+
+
