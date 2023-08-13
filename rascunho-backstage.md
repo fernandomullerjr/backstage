@@ -74,6 +74,36 @@ kubectl get ingress --namespace=backstage
 - Buildar Docker Image com URL atualizada do ALB.
 
 
+## DESTROY
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-service.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+
+kubectl get all -n backstage
+kubectl get ingress -n backstage
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2206,8 +2236,22 @@ http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com/c
 
 
 
+- Destroy
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ kubectl delete -f namespace.yaml
+error: the path "namespace.yaml" does not exist
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+namespace "backstage" deleted
 
 
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+~~~~
 
 
 
@@ -2239,5 +2283,7 @@ http://k8s-backstag-backstag-c3e6f62e16-1783807425.us-east-1.elb.amazonaws.com/c
 - Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
 - IMPORTANTE, Deletar ALB/ingress
+
+
 
 
