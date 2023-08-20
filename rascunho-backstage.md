@@ -33,6 +33,9 @@ kubectl get pods --namespace=backstage
 
 kubectl get ingress --namespace=backstage
 
+kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
+kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
+
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -2294,6 +2297,7 @@ Successfully deleted volume vol-02672888638f9cd9a.
 - Verificar sobre PVC avançado.
       https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
 - Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- Documentar sobre expor o Backstage, questão do "upgrade-insecure-requests: false # For tutorial purposes only" no app-config em "csp".
 - IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
 - IMPORTANTE, Deletar ALB/ingress
 
@@ -2388,5 +2392,93 @@ backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1355060445
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
 
 ~~~~
+
+
+
+
+
+
+
+kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
+
+
+
+- Sobre as variáveis do POSTGRES
+https://backstage.io/docs/deployment/k8s/#creating-a-backstage-deployment
+<https://backstage.io/docs/deployment/k8s/#creating-a-backstage-deployment>
+
+
+- Verificando ip do Service do Postgres:
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get services --namespace=backstage
+NAME        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+backstage   NodePort    172.20.31.29    <none>        7007:32585/TCP   70m
+postgres    ClusterIP   172.20.132.12   <none>        5432/TCP         71m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+~~~~
+
+
+- Informação, confirmando que as variáveis do POSTGRES são preenchidas automaticamente pelo Kubernetes no Container do Backstage:
+
+There is no special wiring needed to access the PostgreSQL service. Since it's running on the same cluster, Kubernetes will inject POSTGRES_SERVICE_HOST and POSTGRES_SERVICE_PORT environment variables into our Backstage container. These can be used in the Backstage app-config.yaml along with the secrets:
+
+~~~~yaml
+backend:
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_SERVICE_HOST}
+      port: ${POSTGRES_SERVICE_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+~~~~
+
+
+- Acessando o container do Backstage e confirmando a existencia das variáveis:
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
+$ env
+GITHUB_TOKEN=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
+KUBERNETES_PORT=tcp://172.20.0.1:443
+KUBERNETES_SERVICE_PORT=443
+NODE_VERSION=18.17.0
+HOSTNAME=backstage-6c949b9bc-m7jwv
+YARN_VERSION=1.22.19
+BACKSTAGE_SERVICE_PORT_BACKSTAGE_PORT=7007
+BACKSTAGE_PORT_7007_TCP_ADDR=172.20.31.29
+HOME=/home/node
+BACKSTAGE_SERVICE_HOST=172.20.31.29
+BACKSTAGE_PORT_7007_TCP_PORT=7007
+BACKSTAGE_PORT_7007_TCP_PROTO=tcp
+BACKSTAGE_SERVICE_PORT=7007
+BACKSTAGE_PORT=tcp://172.20.31.29:7007
+TERM=xterm
+BACKSTAGE_PORT_7007_TCP=tcp://172.20.31.29:7007
+KUBERNETES_PORT_443_TCP_ADDR=172.20.0.1
+POSTGRES_PASSWORD=lab123456
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+POSTGRES_PORT_5432_TCP_ADDR=172.20.132.12
+KUBERNETES_PORT_443_TCP_PORT=443
+POSTGRES_SERVICE_HOST=172.20.132.12
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+POSTGRES_USER=backstage
+POSTGRES_PORT_5432_TCP_PORT=5432
+POSTGRES_PORT_5432_TCP_PROTO=tcp
+POSTGRES_SERVICE_PORT=5432
+POSTGRES_PORT=tcp://172.20.132.12:5432
+KUBERNETES_PORT_443_TCP=tcp://172.20.0.1:443
+KUBERNETES_SERVICE_PORT_HTTPS=443
+POSTGRES_PORT_5432_TCP=tcp://172.20.132.12:5432
+KUBERNETES_SERVICE_HOST=172.20.0.1
+PWD=/app
+NODE_ENV=production
+$
+~~~~
+
+
+
+
 
 
