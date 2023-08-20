@@ -2671,8 +2671,7 @@ Client ID
 e5ff884b08192f9416a6
 
 Secret
-f9b2edbbe926a441c31b1c186425317680b672fb
-
+omitido
 
 Take note of the Client ID and the Client Secret. Open app-config.yaml, and add your clientId and clientSecret to this file. It should end up looking like this:
 
@@ -2780,4 +2779,216 @@ https://backstage.io/docs/getting-started/configuration
 The GitHub integration supports loading catalog entities from GitHub or GitHub Enterprise. Entities can be added to static catalog configuration, registered with the catalog-import plugin, or discovered from a GitHub organization. Users and Groups can also be loaded from an organization. While using GitHub Apps might be the best way to set up integrations, for this tutorial you'll use a Personal Access Token.
 
 Create your Personal Access Token by opening the GitHub token creation page. Use a name to identify this token and put it in the notes field. Choose a number of days for expiration. If you have a hard time picking a number, we suggest to go for 7 days, it's a lucky number.
+
+-Criando:
+backstage-mandragora-token-19-08-2023
+
+
+Set the scope to your likings. For this tutorial, selecting repo and workflow is required as the scaffolding job in this guide configures a GitHub actions workflow for the newly created project.
+
+For this tutorial, we will be writing the token to app-config.local.yaml. This file might not exist for you, so if it doesn't go ahead and create it alongside the app-config.yaml at the root of the project. This file should also be excluded in .gitignore, to avoid accidental committing of this file.
+
+In your app-config.local.yaml go ahead and add the following:
+app-config.local.yaml
+
+~~~~YAML
+integrations:
+  github:
+    - host: github.com
+      token: ghp_urtokendeinfewinfiwebfweb # this should be the token from GitHub
+~~~~
+
+That's settled. This information will be leveraged by other plugins.
+
+If you're looking for a more production way to manage this secret, then you can do the following with the token being stored in an environment variable called GITHUB_TOKEN.
+app-config.local.yaml
+
+~~~~YAML
+integrations:
+  github:
+    - host: github.com
+      token: ${GITHUB_TOKEN} # this will use the environment variable GITHUB_TOKEN
+~~~~
+
+    Note: If you've updated the configuration for your integration, it's likely that the backend will need a restart to apply these changes. To do this, stop the running instance in your terminal with Control-C, then start it again with yarn dev. Once the backend has restarted, retry the operation.
+
+
+
+- Editando
+removendo no app-config
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-config.yaml
+
+~~~~YAML
+integrations:
+  github:
+    - host: github.com
+      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+      # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
+      token: ${GITHUB_TOKEN}
+    ### Example for how to add your GitHub Enterprise instance using the API:
+    # - host: ghe.example.net
+    #   apiBaseUrl: https://ghe.example.net/api/v3
+    #   token: ${GHE_TOKEN}
+~~~~
+
+
+- Ajustando o "app-config.local.yaml":
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-config.local.yaml
+
+~~~~YAML
+integrations:
+  github:
+    - host: github.com
+      token: ghp_urtokendeinfewinfiwebfweb # this should be the token from GitHub
+
+~~~~
+
+
+
+
+
+
+
+
+- Novo build, devido ajustes nas configurações do app-config, Github, etc
+ajustado baseurl
+baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com:7007
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress --namespace=backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com   80      4m12s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:latest .
+docker push fernandomj90/backstage-mandragora:latest
+
+
+~~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker push fernandomj90/backstage-mandragora:latest
+The push refers to repository [docker.io/fernandomj90/backstage-mandragora]
+750365bcbf97: Pushed
+78da13a0bc11: Pushed
+f7d9559dab6e: Layer already exists
+ba18ff0e8af7: Layer already exists
+7e4519697b19: Layer already exists
+ac4716367973: Layer already exists
+4b497447f3f1: Layer already exists
+98342cba36b0: Layer already exists
+ec66eb809bcb: Layer already exists
+de28499355cf: Layer already exists
+4b3ba104e9a8: Layer already exists
+latest: digest: sha256:eaa77d236948928d9cf80f9e624d6135963e4b3b24433657f64a1cea30a78300 size: 2629
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ date
+Sat 19 Aug 2023 11:43:49 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~~
+
+
+kubectl get pods --namespace=backstage
+
+kubectl delete pod --namespace=backstage backstage-6c949b9bc-m7jwv
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+backstage-6c949b9bc-m7jwv   1/1     Running   0          160m
+postgres-77f59b67df-jkmgg   1/1     Running   0          178m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl delete pod --namespace=backstage backstage-6c949b9bc-m7jwv
+pod "backstage-6c949b9bc-m7jwv" deleted
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get pods --namespace=backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+backstage-6c949b9bc-925ds   1/1     Running   0          73s
+postgres-77f59b67df-jkmgg   1/1     Running   0          3h
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+~~~~
+
+
+
+
+## Login to Backstage and check profile
+
+Open your Backstage frontend. You should see your login screen if you're not logged in yet. As soon as you've logged in, go to Settings, you'll see your profile. Hopefully you'll recognize the profile picture and name on your screen, otherwise something went terribly wrong.
+Register an existing component
+
+## Register a new component, by going to create and choose Register existing component
+
+Software template main screen, with a blue button to add an existing component
+
+As URL use https://github.com/backstage/demo/blob/master/catalog-info.yaml. This is used by our demo site.
+
+- Ao tentar adicionar
+https://github.com/backstage/demo/blob/master/catalog-info.yaml
+
+- Ocorre o erro abaixo na GUI:
+{"error":{"name":"InputError","message":"Error: Unable to read url, Error: https://github.com/backstage/demo/tree/master/catalog-info.yaml could not be read as https://api.github.com/repos/backstage/demo/contents/catalog-info.yaml?ref=master, 401 Unauthorized"},"request":{"method":"POST","url":"/locations?dryRun=true"},"response":{"statusCode":400}}
+
+
+
+
+
+
+## DESTROY
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-service.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl delete -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/namespace.yaml
+
+kubectl get all -n backstage
+kubectl get ingress -n backstage
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+- Subir LAB e seguir configuração do Backstage:
+        https://backstage.io/docs/getting-started/configuration
+        Configurar o banco de dados, mudando de SQLITE para POSTGRES.
+        Configurar integraçaõ com GitHub.
+        Subir aplicativo e Template de teste.
+        Ler restante da documentação do Backstage.
+- TSHOOT, erro durante create de component. Avaliar se é necessário adicionar o site de exemplo no Github que tem as credenciais(meu Github)
+          {"error":{"name":"InputError","message":"Error: Unable to read url, Error: https://github.com/backstage/demo/tree/master/catalog-info.yaml could not be read as https://api.github.com/repos/backstage/demo/contents/catalog-info.yaml?ref=master, 401 Unauthorized"},"request":{"method":"POST","url":"/locations?dryRun=true"},"response":{"statusCode":400}}
+- LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+- Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida. Usar Makefile???
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Verificar sobre PVC avançado.
+      https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- Documentar sobre expor o Backstage, questão do "upgrade-insecure-requests: false # For tutorial purposes only" no app-config em "csp".
+- Documentar sobre app-config local e variáveis sensiveis.
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+
 

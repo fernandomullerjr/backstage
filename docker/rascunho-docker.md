@@ -3325,3 +3325,21 @@ Sat 19 Aug 2023 09:02:31 PM -03
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
 
 ~~~~
+
+
+
+
+
+- Novo build, devido ajustes nas configurações do app-config, Github, etc
+ajustado baseurl
+baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com:7007
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress --namespace=backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com   80      4m12s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:latest .
+docker push fernandomj90/backstage-mandragora:latest
