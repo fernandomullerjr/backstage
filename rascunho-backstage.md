@@ -2480,5 +2480,304 @@ $
 
 
 
+- Sobre o app-config.
+- É considerado o YAML de configuração passado via parametro --config, conforme informação obtida na página abaixo:
+https://backstage.io/docs/conf/writing/#configuration-files
+<https://backstage.io/docs/conf/writing/#configuration-files>
 
+- Detalhado:
+
+~~~~bash
+Configuration Files
+
+It is possible to have multiple configuration files (bundled and/or remote*), both to support different environments, but also to define configuration that is local to specific packages. The configuration files to load are selected using a --config <local-path|url> flag, and it is possible to load any number of files. Paths are relative to the working directory of the executed process, for example package/backend. This means that to select a config file in the repo root when running the backend, you would use --config ../../my-config.yaml, and for config file on a config server you would use --config https://some.domain.io/app-config.yaml
+
+Note: In case URLs are passed, it is also needed to set the remote option in the loadBackendConfig call.
+
+If no config flags are specified, the default behavior is to load app-config.yaml and, if it exists, app-config.local.yaml from the repo root. In the provided project setup, app-config.local.yaml is .gitignore'd, making it a good place to add config overrides and secrets for local development.
+
+Note that if any config flags are provided, the default app-config.yaml files are NOT loaded. To include them you need to explicitly include them with a flag, for example:
+
+yarn start --config ../../app-config.yaml --config ../../app-config.staging.yaml --config https://some.domain.io/app-config.yaml
+
+All l
+~~~~
+
+- No caso do Backstage que estou usando, durante o build é passado este arquivo de config:
+CMD ["node", "packages/backend", "--config", "app-config.yaml"]
+
+
+
+- Agora é necessário:
+Dar seguimento ao tutorial de inicio no Backstage:
+https://backstage.io/docs/getting-started/configuration
+Configurar o banco de dados, mudando de SQLITE para POSTGRES.
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+- Subir LAB e seguir configuração do Backstage:
+        https://backstage.io/docs/getting-started/configuration
+        Configurar o banco de dados, mudando de SQLITE para POSTGRES.
+        Configurar integraçaõ com GitHub.
+        Subir aplicativo e Template de teste.
+        Ler restante da documentação do Backstage.
+- LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+- Verificar como montar uma pipeline para buildar imagem do Backstage de maneira rápida. Usar Makefile???
+- Erro ao tentar expor Backstage via "kubectl port-forward". 
+      ERRO:
+      "The connection to the server localhost:8080 was refused - did you specify the right host or port?"
+- Ler:
+      https://medium.com/rahasak/deploy-spotify-backstage-with-kubernetes-b769e755e402
+- Verificar sobre PVC avançado.
+      https://backstage.io/docs/deployment/k8s/#set-up-a-more-reliable-volume
+- Criar passo-a-passo, para subir o projeto do Backstage em Kubernetes, a ordem dos manifestos e etc.
+- Documentar sobre expor o Backstage, questão do "upgrade-insecure-requests: false # For tutorial purposes only" no app-config em "csp".
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+
+
+
+
+
+
+
+
+- Continuando
+        Configurar o banco de dados, mudando de SQLITE para POSTGRES.
+        Configurar integraçaõ com GitHub.
+        Subir aplicativo e Template de teste.
+        Ler restante da documentação do Backstage.
+
+
+https://backstage.io/docs/getting-started/configuration
+Use your favorite editor to open app-config.yaml and add your PostgreSQL configuration in the root directory of your Backstage app using the credentials from the previous steps.
+
+- Ajustando o app-config
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-config.yaml
+
+DE:
+
+~~~~YAML
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    upgrade-insecure-requests: false # For tutorial purposes only
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+~~~~
+
+
+
+PARA:
+
+~~~~YAML
+
+backend:
+  # Used for enabling authentication, secret is shared by all backend plugins
+  # See https://backstage.io/docs/auth/service-to-service-auth for
+  # information on the format
+  # auth:
+  #   keys:
+  #     - secret: ${BACKEND_SECRET}
+  baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com
+  listen:
+    port: 7007
+    # Uncomment the following host directive to bind to specific interfaces
+    host: 0.0.0.0
+  csp:
+    connect-src: ["'self'", 'http:', 'https:']
+    upgrade-insecure-requests: false # For tutorial purposes only
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+  cors:
+    origin: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com:3000
+    methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+    credentials: true
+  # This is for local development only, it is not recommended to use this in production
+  # The production database configuration is stored in app-config.production.yaml
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+  # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+
+~~~~
+
+
+
+
+
+https://backstage.io/docs/getting-started/configuration
+<https://backstage.io/docs/getting-started/configuration>
+
+## Setting up authentication
+
+There are multiple authentication providers available for you to use with Backstage, feel free to follow the instructions for adding authentication.
+
+For this tutorial we choose to use GitHub, a free service most of you might be familiar with. For other options, see the auth provider documentation.
+
+Go to https://github.com/settings/applications/new to create your OAuth App. The Homepage URL should point to Backstage's frontend, in our tutorial it would be http://localhost:3000. The Authorization callback URL will point to the auth backend, which will most likely be http://localhost:7007/api/auth/github/handler/frame.
+
+
+
+
+http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com/catalog?filters%5Bkind%5D=component&filters%5Buser%5D=all
+
+http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com/
+http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com/api/auth/github/handler/frame
+
+
+
+Client ID
+e5ff884b08192f9416a6
+
+Secret
+f9b2edbbe926a441c31b1c186425317680b672fb
+
+
+Take note of the Client ID and the Client Secret. Open app-config.yaml, and add your clientId and clientSecret to this file. It should end up looking like this:
+
+- Editando app-config
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-config.yaml
+
+DE:
+
+~~~~YAML
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  providers: {}
+~~~~
+
+PARA:
+
+~~~~YAML
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: e5ff884b08192f9416a6
+        clientSecret: f9b2edbbe926a441c31b1c186425317680b672fb
+~~~~
+
+
+
+
+
+## Add sign-in option to the frontend
+
+Backstage will re-read the configuration. If there's no errors, that's great! We can continue with the last part of the configuration. The next step is needed to change the sign-in page, this you actually need to add in the source code.
+
+Open packages/app/src/App.tsx and below the last import line, add:
+packages/app/src/App.tsx
+
+~~~~TYPESCRIPT
+import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import { SignInPage } from '@backstage/core-components';
+~~~~
+
+Search for const app = createApp({ in this file, and below apis, add:
+packages/app/src/App.tsx
+
+~~~~TYPESCRIPT
+components: {
+  SignInPage: props => (
+    <SignInPage
+      {...props}
+      auto
+      provider={{
+        id: 'github-auth-provider',
+        title: 'GitHub',
+        message: 'Sign in using GitHub',
+        apiRef: githubAuthApiRef,
+      }}
+    />
+  ),
+},
+~~~~
+
+    Note: The default Backstage app comes with a guest Sign In Resolver. This resolver makes all users share a single "guest" identity and is only intended as a minimum requirement to quickly get up and running. You can read more about how Sign In Resolvers play a role in creating a Backstage User Identity for logged in users.
+
+Restart Backstage from the terminal, by stopping it with Control-C, and starting it with yarn dev . You should be welcomed by a login prompt!
+
+    Note: Sometimes the frontend starts before the backend resulting in errors on the sign in page. Wait for the backend to start and then reload Backstage to proceed.
+
+
+
+
+- Editando
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/packages/app/src/App.tsx
+
+
+
+
+
+- Sobre o "app-config.local.yaml":
+    If no config flags are specified, the default behavior is to load app-config.yaml and, if it exists, app-config.local.yaml from the repo root. In the provided project setup, app-config.local.yaml is .gitignore'd, making it a good place to add config overrides and secrets for local development.
+
+
+- Ajustando o "app-config.local.yaml"
+/home/fernando/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3/app-config.local.yaml
+
+adicionadas configurações sensiveis nele
+
+- Criado gitignore
+adicionado o seguinte:
+backstage/docker/multi-stage/tentativa3/app-config.local.yaml
+docker/multi-stage/tentativa3/app-config.local.yaml
+app-config.local.yaml
+
+
+
+
+
+https://backstage.io/docs/getting-started/configuration
+<https://backstage.io/docs/getting-started/configuration>
+
+## Setting up a GitHub Integration
+
+The GitHub integration supports loading catalog entities from GitHub or GitHub Enterprise. Entities can be added to static catalog configuration, registered with the catalog-import plugin, or discovered from a GitHub organization. Users and Groups can also be loaded from an organization. While using GitHub Apps might be the best way to set up integrations, for this tutorial you'll use a Personal Access Token.
+
+Create your Personal Access Token by opening the GitHub token creation page. Use a name to identify this token and put it in the notes field. Choose a number of days for expiration. If you have a hard time picking a number, we suggest to go for 7 days, it's a lucky number.
 
