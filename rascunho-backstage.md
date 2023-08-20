@@ -21,13 +21,24 @@ git status
 
 
 
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## COMANDOS úteis
+
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl get ingress --namespace=backstage
 
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
 # ####################################################################################################################################################
-## COMANDOS
+## COMANDOS - SUBIR BACKSTAGE
 
 - Subindo Backstage via Kubernetes:
 
@@ -72,6 +83,8 @@ kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/ba
 kubectl get ingress --namespace=backstage
 
 - Buildar Docker Image com URL atualizada do ALB.
+
+docker push fernandomj90/backstage-mandragora:latest
 
 
 ## DESTROY
@@ -2253,7 +2266,7 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentati
 fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
 ~~~~
 
-
+Successfully deleted volume vol-02672888638f9cd9a.
 
 
 
@@ -2285,5 +2298,95 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentati
 - IMPORTANTE, Deletar ALB/ingress
 
 
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 19/08/2023
+
+- IMPORTANTE, deletar PVC/EBS manualmente ao final do lab.
+- IMPORTANTE, Deletar ALB/ingress
+- Subir LAB e seguir configuração do Backstage:
+        https://backstage.io/docs/getting-started/configuration
+        Configurar integraçaõ com GitHub.
+        Subir aplicativo e Template de teste.
+        Ler restante da documentação do Backstage.
+- LER: https://roadie.io/blog/backstage-fargate-up-and-running/
+
+
+
+- Subindo Backstage via Kubernetes:
+
+https://backstage.io/docs/deployment/k8s/#creating-a-namespace
+<https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
+
+cd /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s
+kubectl apply -f namespace.yaml
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-secrets.yaml
+kubectl get secrets -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-storage.yaml
+kubectl get pv -n backstage
+kubectl get pvc -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres.yaml
+kubectl get pods --namespace=backstage
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+psql -U $POSTGRES_USER
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/postgres-service.yaml
+kubectl get services --namespace=backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-secrets.yaml
+kubectl get secret -n backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-service.yaml
+kubectl get services --namespace=backstage
+sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+
+- Anexando policy AWS Managed abaixo na role "arn:aws:iam::552925778543:role/eks-lab-aws-load-balancer-controller-sa-irsa":
+ElasticLoadBalancingFullAccess
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage-ingress.yaml
+kubectl get ingress --namespace=backstage
+
+- Buildar Docker Image com URL atualizada do ALB.
+
+docker push fernandomj90/backstage-mandragora:latest
+
+- Ajustar Docker image atualizada no Deployment:
+
+kubectl apply -f /home/fernando/cursos/idp-devportal/backstage/manifestos-k8s/backstage.yaml
+kubectl get deployments --namespace=backstage
+
+
+- URL do ingress atual
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ kubectl get ingress --namespace=backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com   80      17m
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
 
 

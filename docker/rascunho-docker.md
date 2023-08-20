@@ -3275,3 +3275,53 @@ docker push fernandomj90/backstage-mandragora:v5
 cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
 DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:v6 .
 docker push fernandomj90/backstage-mandragora:v6
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 19/08/2023
+
+- Novo build
+ajustado baseurl
+baseUrl: http://k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com:7007
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$ kubectl get ingress --namespace=backstage
+NAME                CLASS    HOSTS   ADDRESS                                                                   PORTS   AGE
+backstage-ingress   <none>   *       k8s-backstag-backstag-c3e6f62e16-1355060445.us-east-1.elb.amazonaws.com   80      4m12s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/manifestos-k8s$
+
+
+cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-mandragora:latest .
+docker push fernandomj90/backstage-mandragora:latest
+
+
+- Push efetuado
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ docker push fernandomj90/backstage-mandragora:latest
+The push refers to repository [docker.io/fernandomj90/backstage-mandragora]
+69e33c9b537a: Pushed
+08ad892b6ee3: Pushed
+f7d9559dab6e: Layer already exists
+ba18ff0e8af7: Layer already exists
+7e4519697b19: Layer already exists
+ac4716367973: Layer already exists
+4b497447f3f1: Layer already exists
+98342cba36b0: Layer already exists
+ec66eb809bcb: Layer already exists
+de28499355cf: Layer already exists
+4b3ba104e9a8: Layer already exists
+latest: digest: sha256:eb7a6043f437c672f8ee79993749a5e1922aa16189f3760c231406f3c0abad39 size: 2629
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$ date
+Sat 19 Aug 2023 09:02:31 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3$
+
+~~~~
