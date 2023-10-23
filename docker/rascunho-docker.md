@@ -40,6 +40,7 @@ docker container exec -ti node_app_teste bash
 
 npx @backstage/create-app@latest
 
+## BUILD
 - Build
 cd ~/cursos/idp-devportal/backstage/docker/multi-stage/tentativa3
 DOCKER_BUILDKIT=1 docker build -t backstage-tentativa3 .
