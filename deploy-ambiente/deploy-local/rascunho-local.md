@@ -153,6 +153,9 @@ docker push fernandomj90/backstage-mandragora:v1
 # ####################################################################################################################################################
 ## Dia 22/10/2023
 
+- Buildar imagem publica no Docker Hub, com portas para acesso local.
+
+
 https://backstage.io/docs/deployment/k8s/
 <https://backstage.io/docs/deployment/k8s/>
 
@@ -174,6 +177,7 @@ backend:
     origin: http://localhost
 ~~~~
 
+- Buildar imagem publica no Docker Hub, com portas para acesso local.
 
 - RESUMO
 Buildando e efetuando Push ao Docker Hub
@@ -265,11 +269,45 @@ sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
 
 
 
-
-
-- Node do 
+- Aplicado:
 
 ~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$ kubectl get all -n backstage
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/backstage-5d7f9695d9-42n49   0/1     Pending   0          15s
+pod/postgres-667978b84d-c4zxm    0/1     Pending   0          6m18s
+
+NAME                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/backstage   NodePort    10.108.129.168   <none>        80:31030/TCP   5s
+service/postgres    ClusterIP   10.98.37.123     <none>        5432/TCP       60s
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backstage   0/1     1            0           15s
+deployment.apps/postgres    0/1     1            0           6m18s
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/backstage-5d7f9695d9   1         1         0       15s
+replicaset.apps/postgres-667978b84d    1         1         0       6m18s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$ date
+Sun 22 Oct 2023 11:58:05 PM -03
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$
+
+~~~~
+
+
+
+
+
+- Node do Kubeadm não tá subindo Pods:
+
+~~~~bash
+
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$ kubectl get pods -n backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-667978b84d-c4zxm   0/1     Pending   0          4m26s
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$
+
 fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos$ kubectl describe pod postgres-667978b84d-c4zxm -n backstage
 Name:           postgres-667978b84d-c4zxm
 Namespace:      backstage
@@ -290,5 +328,4 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-loc
 ## pendente
 
 - TSHOOT, erro "0/1 nodes are available: 1 node(s) had untolerated taint {node.kubernetes.io/disk-pressure: }. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling..", Pods parando em "Pending".
-- Buildar imagem publica no Docker Hub, com portas para acesso local.
 - Efetuar deploy do Backstage no Kubernetes Local.
