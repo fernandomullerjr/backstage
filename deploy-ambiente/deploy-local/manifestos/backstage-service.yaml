@@ -1,0 +1,14 @@
+# kubernetes/backstage-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  selector:
+    app: backstage
+  type: NodePort
+  ports:
+    - name: backstage-port
+      port: 80
+      targetPort: http
