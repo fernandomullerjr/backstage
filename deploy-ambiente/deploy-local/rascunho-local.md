@@ -408,4 +408,258 @@ root@debian10x64:/home/fernando#
 
 
 
+
+
+
 - Efetuar deploy do Backstage no Kubernetes Local.
+
+
+
+
+- Subindo Backstage via Kubernetes:
+
+https://backstage.io/docs/deployment/k8s/#creating-a-namespace
+<https://backstage.io/docs/deployment/k8s/#creating-a-namespace>
+
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
+kubectl apply -f namespace.yaml
+
+kubectl apply -f postgres-secrets.yaml
+kubectl get secrets -n backstage
+
+kubectl apply -f postgres-storage.yaml
+kubectl get pv -n backstage
+kubectl get pvc -n backstage
+
+kubectl apply -f postgres.yaml
+kubectl get pods --namespace=backstage
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+psql -U $POSTGRES_USER
+
+kubectl apply -f postgres-service.yaml
+kubectl get services --namespace=backstage
+
+kubectl apply -f backstage-secrets.yaml
+kubectl get secret -n backstage
+
+kubectl apply -f backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
+
+kubectl apply -f backstage-service.yaml
+kubectl get services --namespace=backstage
+sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
+sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+
+
+
+
+
+
+
+~~~~bash
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods --namespace=backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-667978b84d-6bjsl   0/1     Pending   0          64s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl describe pod postgres-667978b84d-6bjsl --namespace=backstage
+Name:           postgres-667978b84d-6bjsl
+Namespace:      backstage
+Priority:       0
+Node:           <none>
+Labels:         app=postgres
+                pod-template-hash=667978b84d
+Annotations:    <none>
+Status:         Pending
+IP:
+IPs:            <none>
+Controlled By:  ReplicaSet/postgres-667978b84d
+Containers:
+  postgres:
+    Image:      postgres:13.2-alpine
+    Port:       5432/TCP
+    Host Port:  0/TCP
+    Environment Variables from:
+      postgres-secrets  Secret  Optional: false
+    Environment:        <none>
+    Mounts:
+      /var/lib/postgresql/data from postgresdb (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-qcjch (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  postgresdb:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  postgres-storage-claim
+    ReadOnly:   false
+  kube-api-access-qcjch:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  92s   default-scheduler  0/1 nodes are available: pod has unbound immediate PersistentVolumeClaims. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling..
+  Warning  FailedScheduling  90s   default-scheduler  0/1 nodes are available: 1 node(s) had untolerated taint {node-role.kubernetes.io/control-plane: }. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling..
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+~~~~
+
+
+
+
+
+
+
+
+- Removendo taint
+
+kubectl taint nodes debian10x64 node-role.kubernetes.io/control-plane-
+
+
+
+- ANTES:
+
+~~~~YAML
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl describe node debian10x64
+Name:               debian10x64
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=debian10x64
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/containerd/containerd.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Sat, 28 Oct 2023 15:23:37 -0300
+Taints:             node-role.kubernetes.io/control-plane:NoSchedule
+Unschedulable:      false
+Lease:
+~~~~
+
+
+- DEPOIS:
+
+~~~~YAML
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl taint nodes debian10x64 node-role.kubernetes.io/control-plane-
+node/debian10x64 untainted
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl describe node debian10x64 | head -n 55
+Name:               debian10x64
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=debian10x64
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/containerd/containerd.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Sat, 28 Oct 2023 15:23:37 -0300
+Taints:             <none>
+Unschedulable:      false
+Lease:
+~~~~
+
+
+
+
+- Pod do Postgres ficou running agora:
+
+~~~~bash
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods --namespace=backstage
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-667978b84d-6bjsl   1/1     Running   0          5m10s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+~~~~
+
+
+
+
+
+
+
+
+
+
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get all --namespace=backstage
+NAME                             READY   STATUS              RESTARTS   AGE
+pod/backstage-5d7f9695d9-qqngq   0/1     ContainerCreating   0          18s
+pod/postgres-667978b84d-6bjsl    1/1     Running             0          6m49s
+
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/backstage   NodePort    10.96.136.253   <none>        80:32537/TCP   7s
+service/postgres    ClusterIP   10.103.32.165   <none>        5432/TCP       6m40s
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backstage   0/1     1            0           18s
+deployment.apps/postgres    1/1     1            1           6m49s
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/backstage-5d7f9695d9   1         1         0       18s
+replicaset.apps/postgres-667978b84d    1         1         1       6m49s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
+Sat 28 Oct 2023 06:17:19 PM -03
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get all --namespace=backstage
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/backstage-5d7f9695d9-qqngq   1/1     Running   0          62s
+pod/postgres-667978b84d-6bjsl    1/1     Running   0          7m33s
+
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+service/backstage   NodePort    10.96.136.253   <none>        80:32537/TCP   51s
+service/postgres    ClusterIP   10.103.32.165   <none>        5432/TCP       7m24s
+
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/backstage   1/1     1            1           62s
+deployment.apps/postgres    1/1     1            1           7m33s
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/backstage-5d7f9695d9   1         1         1       62s
+replicaset.apps/postgres-667978b84d    1         1         1       7m33s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl logs backstage-5d7f9695d9-qqngq --namespace=backstage
+Loaded config from app-config.yaml
+{"level":"info","message":"Found 2 new secrets in config that will be redacted","service":"backstage"}
+{"level":"info","message":"Created UrlReader predicateMux{readers=azure{host=dev.azure.com,authed=false},bitbucketCloud{host=bitbucket.org,authed=false},github{host=github.com,authed=false},gitlab{host=gitlab.com,authed=false},awsS3{host=amazonaws.com,authed=false},fetch{}","service":"backstage"}
+Backend failed to start up Error: Failed to connect to the database to make sure that 'backstage_plugin_catalog' exists, RangeError [ERR_SOCKET_BAD_PORT]: Port should be >= 0 and < 65536. Received type number (NaN).
+    at /app/node_modules/@backstage/backend-common/dist/index.cjs.js:973:17
+    at async CatalogBuilder.build (/app/node_modules/@backstage/plugin-catalog-backend/dist/cjs/CatalogBuilder-21da853f.cjs.js:4940:22)
+    at async createPlugin$4 (/app/packages/backend/dist/index.cjs.js:82:40)
+    at async main (/app/packages/backend/dist/index.cjs.js:229:29)
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
+Sat 28 Oct 2023 06:18:18 PM -03
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
