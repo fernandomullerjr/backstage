@@ -329,3 +329,83 @@ fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-loc
 
 - TSHOOT, erro "0/1 nodes are available: 1 node(s) had untolerated taint {node.kubernetes.io/disk-pressure: }. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling..", Pods parando em "Pending".
 - Efetuar deploy do Backstage no Kubernetes Local.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## Dia 28/10/2023
+
+- Efetuado resize do disco da VM de 60gb para 75gb
+- Efetuado resize da sda3 de 20gb para 35gb
+- Reboot da VM
+
+~~~~bash
+root@debian10x64:/home/fernando# lsblk
+NAME                       MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+fd0                          2:0    1     4K  0 disk
+loop0                        7:0    0 272.7M  1 loop /snap/kontena-lens/249
+loop1                        7:1    0 105.8M  1 loop /snap/core/16091
+loop2                        7:2    0  55.7M  1 loop /snap/core18/2790
+loop3                        7:3    0  55.7M  1 loop /snap/core18/2785
+loop4                        7:4    0 272.7M  1 loop /snap/kontena-lens/248
+loop5                        7:5    0 116.7M  1 loop /snap/robo3t-snap/9
+loop6                        7:6    0 105.8M  1 loop /snap/core/16202
+sda                          8:0    0    75G  0 disk
+├─sda1                       8:1    0   487M  0 part /boot
+├─sda2                       8:2    0     1K  0 part
+├─sda3                       8:3    0    35G  0 part
+│ └─debian10x64--vg-root   254:0    0  73.6G  0 lvm  /
+└─sda5                       8:5    0  39.5G  0 part
+  ├─debian10x64--vg-root   254:0    0  73.6G  0 lvm  /
+  └─debian10x64--vg-swap_1 254:1    0   976M  0 lvm
+sr0                         11:0    1   336M  0 rom
+root@debian10x64:/home/fernando#
+
+
+root@debian10x64:/home/fernando# df -h
+Filesystem                        Size  Used Avail Use% Mounted on
+udev                              4.8G     0  4.8G   0% /dev
+tmpfs                             982M   15M  968M   2% /run
+/dev/mapper/debian10x64--vg-root   73G   54G   16G  78% /
+~~~~
+
+
+
+
+
+- Todos os pods em "running" agora:
+
+~~~~bash
+root@debian10x64:/home/fernando# kubectl get pods -A
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS        AGE
+kube-system   cilium-operator-788c4f69bc-g7mw4      1/1     Running   2 (108s ago)    140m
+kube-system   cilium-q8xc5                          1/1     Running   2 (108s ago)    140m
+kube-system   coredns-5dd5756b68-btrs6              1/1     Running   3 (108s ago)    144m
+kube-system   coredns-5dd5756b68-gpwnt              1/1     Running   3 (67s ago)     144m
+kube-system   etcd-debian10x64                      1/1     Running   62 (108s ago)   144m
+kube-system   kube-apiserver-debian10x64            1/1     Running   2 (108s ago)    144m
+kube-system   kube-controller-manager-debian10x64   1/1     Running   2 (108s ago)    144m
+kube-system   kube-proxy-272d4                      1/1     Running   2 (108s ago)    144m
+kube-system   kube-scheduler-debian10x64            1/1     Running   2 (108s ago)    144m
+root@debian10x64:/home/fernando#
+root@debian10x64:/home/fernando# date
+Sat 28 Oct 2023 05:48:02 PM -03
+root@debian10x64:/home/fernando#
+~~~~
+
+
+
+- Efetuar deploy do Backstage no Kubernetes Local.
