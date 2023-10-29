@@ -673,4 +673,440 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
 Sat 28 Oct 2023 06:18:18 PM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+Pod em crash agora
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get all --namespace=backstage
+NAME                             READY   STATUS             RESTARTS       AGE
+pod/backstage-5d7f9695d9-qqngq   0/1     CrashLoopBackOff   7 (3m1s ago)   4h42m
+pod/postgres-667978b84d-6bjsl    1/1     Running            0              4h49m
+
 ~~~~
+
+
+
+
+
+
+
+
+
+
+Conforme o tutorial, as variáveis são injetadas automaticamente:
+
+https://backstage.io/docs/deployment/k8s/#creating-a-postgresql-deployment
+<https://backstage.io/docs/deployment/k8s/#creating-a-postgresql-deployment>
+There is no special wiring needed to access the PostgreSQL service. Since it's running on the same cluster, Kubernetes will inject POSTGRES_SERVICE_HOST and POSTGRES_SERVICE_PORT environment variables into our Backstage container. These can be used in the Backstage app-config.yaml along with the secrets:
+
+backend:
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_SERVICE_HOST}
+      port: ${POSTGRES_SERVICE_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+
+
+
+
+
+
+
+
+
+kubectl exec -it --namespace=backstage postgres-77f59b67df-wxggr -- /bin/bash
+
+kubectl exec -it --namespace=backstage postgres-667978b84d-6bjsl -- /bin/bash
+
+- Dentro do Pod do postgres:
+
+~~~~bash
+
+bash-5.1# env
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_SERVICE_PORT=443
+POSTGRES_PORT_5432_TCP=tcp://10.103.32.165:5432
+HOSTNAME=postgres-667978b84d-6bjsl
+POSTGRES_PASSWORD=lab123456
+POSTGRES_PORT_5432_TCP_ADDR=10.103.32.165
+POSTGRES_PORT_5432_TCP_PROTO=tcp
+PWD=/
+PG_SHA256=5fd7fcd08db86f5b2aed28fcfaf9ae0aca8e9428561ac547764c2a2b0f41adfc
+HOME=/root
+LANG=en_US.utf8
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+POSTGRES_PORT_5432_TCP_PORT=5432
+PG_MAJOR=13
+PG_VERSION=13.2
+TERM=xterm
+POSTGRES_PORT=tcp://10.103.32.165:5432
+SHLVL=1
+POSTGRES_USER=backstage
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+PGDATA=/var/lib/postgresql/data
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PORT=443
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+POSTGRES_SERVICE_PORT=5432
+POSTGRES_SERVICE_HOST=10.103.32.165
+_=/usr/bin/env
+bash-5.1#
+
+~~~~
+
+
+
+
+
+
+
+
+
+
+
+- Comparando
+
+no app-config.yaml
+
+~~~~yaml
+
+backend:
+[...]
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+~~~~
+
+- Nas variáveis de ambiente:
+
+~~~~bash
+
+bash-5.1# env | grep -i postgres
+POSTGRES_PORT_5432_TCP=tcp://10.103.32.165:5432
+HOSTNAME=postgres-667978b84d-6bjsl
+POSTGRES_PASSWORD=lab123456
+POSTGRES_PORT_5432_TCP_ADDR=10.103.32.165
+POSTGRES_PORT_5432_TCP_PROTO=tcp
+POSTGRES_PORT_5432_TCP_PORT=5432
+POSTGRES_PORT=tcp://10.103.32.165:5432
+POSTGRES_USER=backstage
+PGDATA=/var/lib/postgresql/data
+POSTGRES_SERVICE_PORT=5432
+POSTGRES_SERVICE_HOST=10.103.32.165
+bash-5.1#
+bash-5.1#
+
+~~~~
+
+
+
+- As variáveis referentes a host e port estão diferentes.
+- Dentro do pod tem o "_SERVICE_" no nome de cada uma.
+
+- Necessário ajustar no app-config.yaml
+ajustando
+/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage/app-config.yaml
+
+- Buildando e efetuando Push ao Docker Hub
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-local:v2 .
+docker push fernandomj90/backstage-local:v2
+
+
+
+
+
+
+
+- Ajustando Deployment do Backstage, para usar Docker image v2:
+
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
+kubectl apply -f backstage.yaml
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+
+
+
+
+
+
+
+
+~~~~bash
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods --namespace=backstage
+NAME                         READY   STATUS                   RESTARTS       AGE
+backstage-5d7f9695d9-26ljz   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-2ww2d   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-2xdj8   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-44s7p   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-45vlb   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-4gh4v   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-4jj5v   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-569z8   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-5f667   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-5lt78   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-5scbm   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-5tw6g   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-5wrj5   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-6428m   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-69pzm   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-6wkhc   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-76427   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-7cpgj   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-7h2cj   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-7pw7p   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-8c8tm   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-8lc6q   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-8p8bx   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-8tcxq   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-9g572   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-9wtls   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-b5wt2   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-bgmdr   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-blc4m   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-ckrpx   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-cmm62   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-cnhc4   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-cns4p   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-dcdsp   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-f2qx6   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-f8v5g   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-fcfn2   0/1     Error                    0              30m
+backstage-5d7f9695d9-fd6rs   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-fms75   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-fmwpt   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-fx5x6   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-fxgt8   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-hdb77   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-hg2mv   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-hrbq4   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-jbhn9   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-jt6xb   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-kc5lf   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-kfkqh   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-ktrkv   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-lf86d   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-lk44c   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-lxmlg   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-m5b8s   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-mcvrg   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-ms4n9   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-nz6vf   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-p2sq5   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-p6m6z   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-ptlpn   0/1     Pending                  0              3m16s
+backstage-5d7f9695d9-ptvsn   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-q4cwr   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-q8hjb   0/1     ContainerStatusUnknown   1              19m
+backstage-5d7f9695d9-qcfz4   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-qhwrl   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-qqngq   0/1     ContainerStatusUnknown   11 (33m ago)   5h34m
+backstage-5d7f9695d9-qw924   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-rh7jw   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-rhd4l   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-rllx5   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-s7495   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-s94gn   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-sb854   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-svqqb   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-tgmkk   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-v5bwl   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-v85cg   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-v8cn2   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-vfkpp   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-vwd8x   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-wcwk9   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-wlj8h   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-wqx49   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-wzlgz   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-xb8wb   0/1     Error                    0              11m
+backstage-5d7f9695d9-xcwqn   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-xnpp7   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-xq6pb   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-xqr7t   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-xtx2k   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-xvgbj   0/1     Evicted                  0              31m
+backstage-5d7f9695d9-xxwxn   0/1     Evicted                  0              30m
+backstage-5d7f9695d9-zlmx2   0/1     Evicted                  0              31m
+backstage-7b9f466556-ctcxf   0/1     Pending                  0              29s
+postgres-667978b84d-262fm    0/1     Evicted                  0              3m55s
+postgres-667978b84d-2tqpt    0/1     Evicted                  0              3m55s
+postgres-667978b84d-2w2qb    0/1     Evicted                  0              3m54s
+postgres-667978b84d-4n9b4    0/1     Evicted                  0              3m56s
+postgres-667978b84d-4xhhp    0/1     Evicted                  0              3m56s
+postgres-667978b84d-5226n    0/1     Evicted                  0              3m58s
+postgres-667978b84d-57s75    0/1     Evicted                  0              3m56s
+postgres-667978b84d-5nbgw    0/1     Evicted                  0              3m59s
+postgres-667978b84d-6bjsl    0/1     ContainerStatusUnknown   1              5h41m
+postgres-667978b84d-6jtxb    0/1     Evicted                  0              3m55s
+postgres-667978b84d-7m2qz    0/1     Evicted                  0              3m59s
+postgres-667978b84d-b24k4    0/1     Evicted                  0              3m55s
+postgres-667978b84d-c2bcr    0/1     Evicted                  0              3m56s
+postgres-667978b84d-cwgcx    0/1     Evicted                  0              3m58s
+postgres-667978b84d-dng67    0/1     Evicted                  0              3m54s
+postgres-667978b84d-dpn67    0/1     Pending                  0              3m53s
+postgres-667978b84d-dpxss    0/1     Evicted                  0              3m57s
+postgres-667978b84d-f2tsp    0/1     Evicted                  0              3m57s
+postgres-667978b84d-g24qr    0/1     Evicted                  0              3m59s
+postgres-667978b84d-gs4dd    0/1     Evicted                  0              3m57s
+postgres-667978b84d-gwch2    0/1     Evicted                  0              3m59s
+postgres-667978b84d-hgdkn    0/1     Evicted                  0              3m55s
+postgres-667978b84d-hqwdg    0/1     Evicted                  0              3m57s
+postgres-667978b84d-jbw2p    0/1     Evicted                  0              3m55s
+postgres-667978b84d-jjnfw    0/1     Evicted                  0              3m57s
+postgres-667978b84d-kfpnm    0/1     Evicted                  0              3m59s
+postgres-667978b84d-m9sf5    0/1     Evicted                  0              3m56s
+postgres-667978b84d-mfc4g    0/1     Evicted                  0              3m55s
+postgres-667978b84d-ncz92    0/1     Evicted                  0              3m56s
+postgres-667978b84d-p8bff    0/1     Completed                0              19m
+postgres-667978b84d-psh5m    0/1     Evicted                  0              3m58s
+postgres-667978b84d-pwbt7    0/1     Evicted                  0              3m55s
+postgres-667978b84d-pzpnt    0/1     Evicted                  0              3m58s
+postgres-667978b84d-qjtkp    0/1     Evicted                  0              3m59s
+postgres-667978b84d-qqp8m    0/1     Evicted                  0              3m58s
+postgres-667978b84d-qtt9s    0/1     Completed                0              11m
+postgres-667978b84d-rhhk6    0/1     Evicted                  0              3m59s
+postgres-667978b84d-s2wqx    0/1     Evicted                  0              3m55s
+postgres-667978b84d-s44ns    0/1     Evicted                  0              3m58s
+postgres-667978b84d-s89nb    0/1     Completed                0              25m
+postgres-667978b84d-sk5ks    0/1     Evicted                  0              3m57s
+postgres-667978b84d-tqw4c    0/1     Evicted                  0              3m56s
+postgres-667978b84d-v49sm    0/1     Evicted                  0              3m59s
+postgres-667978b84d-xdtww    0/1     Evicted                  0              3m59s
+postgres-667978b84d-z54h2    0/1     Evicted                  0              3m57s
+postgres-667978b84d-z9d4g    0/1     Evicted                  0              3m59s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+~~~~
+
+
+
+
+
+
+
+
+
+
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl describe node debian10x64
+Name:               debian10x64
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=debian10x64
+                    kubernetes.io/os=linux
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/containerd/containerd.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Sat, 28 Oct 2023 15:23:37 -0300
+Taints:             <none>
+
+Events:
+  Type     Reason                 Age                     From     Message
+  ----     ------                 ----                    ----     -------
+  Warning  FreeDiskSpaceFailed    45m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3358330060 bytes, but only found 301773 bytes eligible to free.
+  Warning  FreeDiskSpaceFailed    40m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3272002764 bytes, but only found 0 bytes eligible to free.
+  Warning  ImageGCFailed          40m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3272002764 bytes, but only found 0 bytes eligible to free.
+  Warning  FreeDiskSpaceFailed    35m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3742960844 bytes, but only found 0 bytes eligible to free.
+  Warning  ImageGCFailed          35m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3742960844 bytes, but only found 0 bytes eligible to free.
+  Normal   NodeHasDiskPressure    33m (x2 over 44m)       kubelet  Node debian10x64 status is now: NodeHasDiskPressure
+  Warning  EvictionThresholdMet   33m (x7 over 44m)       kubelet  Attempting to reclaim ephemeral-storage
+  Warning  FreeDiskSpaceFailed    30m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3743042764 bytes, but only found 0 bytes eligible to free.
+  Warning  FreeDiskSpaceFailed    25m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3743251660 bytes, but only found 0 bytes eligible to free.
+  Warning  FreeDiskSpaceFailed    20m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 3743345868 bytes, but only found 0 bytes eligible to free.
+  Warning  FreeDiskSpaceFailed    15m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 5462772940 bytes, but only found 0 bytes eligible to free.
+  Normal   NodeHasNoDiskPressure  9m42s (x32 over 6h18m)  kubelet  Node debian10x64 status is now: NodeHasNoDiskPressure
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+
+
+
+
+
+
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
+
+kubectl delete -f postgres.yaml
+kubectl delete -f backstage.yaml
+
+kubectl apply -f postgres.yaml
+kubectl apply -f backstage.yaml
+
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+
+
+
+
+
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods -A
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS         AGE
+backstage     backstage-7b9f466556-jtwcs            1/1     Running   0                12s
+backstage     postgres-667978b84d-gnfwp             1/1     Running   0                26s
+kube-system   cilium-operator-788c4f69bc-g7mw4      1/1     Running   2 (6h20m ago)    8h
+kube-system   cilium-q8xc5                          1/1     Running   2 (6h20m ago)    8h
+kube-system   coredns-5dd5756b68-btrs6              1/1     Running   3 (6h20m ago)    8h
+kube-system   coredns-5dd5756b68-gpwnt              1/1     Running   3 (6h19m ago)    8h
+kube-system   etcd-debian10x64                      1/1     Running   62 (6h20m ago)   8h
+kube-system   kube-apiserver-debian10x64            1/1     Running   2 (6h20m ago)    8h
+kube-system   kube-controller-manager-debian10x64   1/1     Running   2 (6h20m ago)    8h
+kube-system   kube-proxy-272d4                      1/1     Running   2 (6h20m ago)    8h
+kube-system   kube-scheduler-debian10x64            1/1     Running   2 (6h20m ago)    8h
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
+Sun 29 Oct 2023 12:06:23 AM -03
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+
+
+
+
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods -n backstage
+NAME                         READY   STATUS    RESTARTS   AGE
+backstage-7b9f466556-jtwcs   1/1     Running   0          62s
+postgres-667978b84d-gnfwp    1/1     Running   0          76s
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl logs backstage-7b9f466556-jtwcs -n backstage
+Loaded config from app-config.yaml
+{"level":"info","message":"Found 2 new secrets in config that will be redacted","service":"backstage"}
+{"level":"info","message":"Created UrlReader predicateMux{readers=azure{host=dev.azure.com,authed=false},bitbucketCloud{host=bitbucket.org,authed=false},github{host=github.com,authed=false},gitlab{host=gitlab.com,authed=false},awsS3{host=amazonaws.com,authed=false},fetch{}","service":"backstage"}
+{"level":"info","message":"Performing database migration","plugin":"catalog","service":"backstage","type":"plugin"}
+{"level":"info","message":"Configuring \"database\" as KeyStore provider","plugin":"auth","service":"backstage","type":"plugin"}
+{"level":"info","message":"Creating Local publisher for TechDocs","plugin":"techdocs","service":"backstage","type":"plugin"}
+{"level":"info","message":"Added DefaultCatalogCollatorFactory collator factory for type software-catalog","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Added DefaultTechDocsCollatorFactory collator factory for type techdocs","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Starting all scheduled search tasks.","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Serving static app content from /app/packages/app/dist","plugin":"app","service":"backstage","type":"plugin"}
+{"level":"info","message":"Task worker starting: search_index_software_catalog, {\"version\":2,\"cadence\":\"PT10M\",\"initialDelayDuration\":\"PT3S\",\"timeoutAfterDuration\":\"PT15M\"}","service":"backstage","task":"search_index_software_catalog","type":"taskManager"}
+{"level":"info","message":"Task worker starting: search_index_techdocs, {\"version\":2,\"cadence\":\"PT10M\",\"initialDelayDuration\":\"PT3S\",\"timeoutAfterDuration\":\"PT15M\"}","service":"backstage","task":"search_index_techdocs","type":"taskManager"}
+{"level":"info","message":"Injecting env config into module-backstage.65602c50.js","plugin":"app","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-0ca6551527608b8e42ccccd463f27d4113d35ff1","level":"warn","location":"file:/examples/org.yaml","message":"file /examples/org.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-eeed3503740b7c4b80f2aad3e417fafee7a3803d","level":"warn","location":"file:/examples/entities.yaml","message":"file /examples/entities.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"level":"info","message":"Storing 283 updated assets and 0 new assets","plugin":"app","service":"backstage","type":"plugin"}
+{"level":"info","message":"Listening on 0.0.0.0:7007","service":"backstage"}
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
+Sun 29 Oct 2023 12:07:24 AM -03
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
