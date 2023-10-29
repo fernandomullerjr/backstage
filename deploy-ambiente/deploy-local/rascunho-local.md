@@ -604,9 +604,11 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 
 
 
+- Aplicando demais manifestos
 
+- Pods sendo criados "ContainerCreating":
 
-
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get all --namespace=backstage
 NAME                             READY   STATUS              RESTARTS   AGE
 pod/backstage-5d7f9695d9-qqngq   0/1     ContainerCreating   0          18s
@@ -627,8 +629,16 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 Sat 28 Oct 2023 06:17:19 PM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
 
+~~~~
 
 
+
+
+
+- Pods foram criados.
+- Pod com erro, falha ao tentar conectar com o database:
+
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get all --namespace=backstage
 NAME                             READY   STATUS    RESTARTS   AGE
 pod/backstage-5d7f9695d9-qqngq   1/1     Running   0          62s
@@ -663,3 +673,4 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
 Sat 28 Oct 2023 06:18:18 PM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+~~~~
