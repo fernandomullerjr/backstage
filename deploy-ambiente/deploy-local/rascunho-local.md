@@ -48,6 +48,7 @@ kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
 # ####################################################################################################################################################
 ## RESUMO E DETALHES
 
+## Variáveis
 - As variáveis referentes a host e port estão diferentes, entre o app-config.yaml e as variáveis de ambiente injetadas no Pod.
 - Dentro do pod tem o "_SERVICE_" no nome de cada uma.
 - Foi ajustado o app-config.yaml
@@ -159,7 +160,7 @@ docker push <hub-user>/<repo-name>:<tag>
 Buildando e efetuando Push ao Docker Hub
 cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage
 DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-local:v1 .
-docker push fernandomj90/backstage-mandragora:v1
+docker push fernandomj90/backstage-local:v1
 
 
 
@@ -1298,3 +1299,271 @@ auth:
       development:
         clientId: YOUR CLIENT ID
         clientSecret: YOUR CLIENT SECRET
+
+
+
+Add sign-in option to the frontend
+
+This step is needed to change the sign-in page. Get ready to dive into the code.
+
+    Open packages/app/src/App.tsx in your favorite code editor. Below the last import line, add:
+
+import { githubAuthApiRef } from '@backstage/core-plugin-api';
+import { SignInProviderConfig, SignInPage } from '@backstage/core-components';
+
+const githubProvider: SignInProviderConfig = {
+  id: 'github-auth-provider',
+  title: 'GitHub',
+  message: 'Sign in using GitHub',
+  apiRef: githubAuthApiRef,
+};
+
+    Search for const app = createApp({ in this file, and below apis, add:
+
+components: {
+   SignInPage: props => (
+     <SignInPage
+       {...props}
+       auto
+       provider={githubProvider}
+     />
+   ),
+ },
+
+    Note: The default Backstage app comes with a guest Sign In Resolver. This resolver makes all users share a single "guest" identity and is only intended as a minimum requirement to quickly get up and running. You can read more about how Sign In Resolvers play a role in creating a Backstage User Identity for logged in users.
+
+Restart Backstage from the terminal, by stopping it with Control-C, and starting it with yarn dev . You should be welcomed by a login prompt.
+
+    Note: Sometimes the frontend starts before the backend resulting in errors on the sign in page. Wait for the backend to start and then reload Backstage to proceed.
+
+
+
+
+
+
+
+
+
+
+
+- Editando o App.tsx
+/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage/packages/app/src/App.tsx
+
+- Adicionando:
+
+~~~~typescript
+import { SignInProviderConfig } from '@backstage/core-components';
+
+const githubProvider: SignInProviderConfig = {
+  id: 'github-auth-provider',
+  title: 'GitHub',
+  message: 'Sign in using GitHub',
+  apiRef: githubAuthApiRef,
+};
+~~~~
+
+
+- E editando este trecho:
+
+DE:
+
+~~~~typescript
+
+const app = createApp({
+  apis,
+  components: {
+    SignInPage: props => (
+      <SignInPage
+        {...props}
+        auto
+        provider={{
+          id: 'github-auth-provider',
+          title: 'GitHub',
+          message: 'Sign in using GitHub',
+          apiRef: githubAuthApiRef,
+        }}
+      />
+    ),
+  },
+~~~~
+
+PARA:
+
+~~~~typescript
+const app = createApp({
+  apis,
+  components: {
+    SignInPage: props => (
+      <SignInPage
+        {...props}
+        auto
+        provider={githubProvider}
+      />
+    ),
+  },
+~~~~
+
+
+
+- Buildando e efetuando Push ao Docker Hub, alterações referentes a "Setting up authentication":
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-local:v3 .
+docker push fernandomj90/backstage-local:v3
+
+~~~~bash
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage$ docker push fernandomj90/backstage-local:v3
+The push refers to repository [docker.io/fernandomj90/backstage-local]
+156e6c367bcc: Pushed
+e998a0ec5e04: Pushed
+9c3af61af98e: Layer already exists
+9c11f6d75541: Layer already exists
+f04598eee10c: Layer already exists
+05e488016dab: Layer already exists
+239b4be40545: Layer already exists
+b39d8975f2b5: Layer already exists
+e8c1966637e9: Layer already exists
+36f368d2835f: Layer already exists
+8ce178ff9f34: Layer already exists
+v3: digest: sha256:42cbe9f633d998b8ec6ee0bf0e909dd6f2c1b00db53c9e5be29b08488ecf71c1 size: 2630
+fernando@debian10x64:~/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage$
+
+~~~~
+
+
+- Aplicando o manifesto novamente:
+
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
+
+kubectl delete -f backstage.yaml
+
+kubectl apply -f backstage.yaml
+
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+~~~~bash
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods --namespace=backstage
+NAME                         READY   STATUS    RESTARTS   AGE
+backstage-7b5dc95679-87gkl   1/1     Running   0          31s
+postgres-667978b84d-gnfwp    1/1     Running   0          14h
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
+Sun 29 Oct 2023 02:47:54 PM -03
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+root@debian10x64:/home/fernando# kubectl logs -l app=backstage -n backstage -f
+{"level":"info","message":"Creating Local publisher for TechDocs","plugin":"techdocs","service":"backstage","type":"plugin"}
+{"level":"info","message":"Added DefaultCatalogCollatorFactory collator factory for type software-catalog","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Added DefaultTechDocsCollatorFactory collator factory for type techdocs","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Starting all scheduled search tasks.","plugin":"search","service":"backstage","type":"plugin"}
+{"level":"info","message":"Serving static app content from /app/packages/app/dist","plugin":"app","service":"backstage","type":"plugin"}
+{"level":"info","message":"Task worker starting: search_index_software_catalog, {\"version\":2,\"cadence\":\"PT10M\",\"initialDelayDuration\":\"PT3S\",\"timeoutAfterDuration\":\"PT15M\"}","service":"backstage","task":"search_index_software_catalog","type":"taskManager"}
+{"level":"info","message":"Task worker starting: search_index_techdocs, {\"version\":2,\"cadence\":\"PT10M\",\"initialDelayDuration\":\"PT3S\",\"timeoutAfterDuration\":\"PT15M\"}","service":"backstage","task":"search_index_techdocs","type":"taskManager"}
+{"level":"info","message":"Injecting env config into module-backstage.3e046031.js","plugin":"app","service":"backstage","type":"plugin"}
+{"level":"info","message":"Storing 279 updated assets and 4 new assets","plugin":"app","service":"backstage","type":"plugin"}
+{"level":"info","message":"Listening on 0.0.0.0:7007","service":"backstage"}
+
+
+~~~~
+
+
+
+- FORWARD
+kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+
+
+- ERRO ao tentar acessar:
+http://192.168.0.110/
+
+- Backstage tenta autenticar localhost e não encontra:
+http://192.168.0.110/
+
+localhost/api/auth/github/handler/frame?code=a69ddd8c2ba5b33ec99a&state=6e6f6e63653d524a734a54314b446a5565556c6d413470515158785125334425334426656e763d646576656c6f706d656e74266f726967696e3d687474702533412532462532463139322e3136382e302e31313026666c6f773d706f7075702673636f70653d7265616425334175736572
+
+Não foi possível conectar
+
+O Firefox não conseguiu estabelecer uma conexão com o servidor localhost.
+
+    Este site pode estar temporariamente indisponível ou sobrecarregado. Tente novamente daqui a pouco.
+    Se você não conseguir carregar nenhuma página, verifique a conexão de rede do computador.
+    Se a rede ou o computador estiver protegido por um firewall ou proxy, verifique se o Firefox está autorizado a acessar a web.
+
+
+
+
+
+
+
+
+
+- Ajustando
+
+baseUrl: http://192.168.0.110
+
+
+
+- Buildando e efetuando Push ao Docker Hub, alterações referentes a url:
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/docker-multi-stage
+DOCKER_BUILDKIT=1 docker build -t fernandomj90/backstage-local:v3 .
+docker push fernandomj90/backstage-local:v3
+
+
+
+- Aplicando o manifesto novamente:
+
+cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
+
+kubectl delete -f backstage.yaml
+
+kubectl apply -f backstage.yaml
+
+kubectl get deployments --namespace=backstage
+kubectl get pods --namespace=backstage
+
+
+- FORWARD
+kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+
+
+
+
+
+
+
+
+
+- Novo teste:
+Sign in using GitHub
+
+Login failed, popup was closed
+
+- Github tenta jogar para uma página HTTPS:
+https://localhost/api/auth/github/handler/frame?code=7e9efaccca1172a3653f&state=6e6f6e63653d34363271464147534c4e7331424e3964614a532532425a6725334425334426656e763d646576656c6f706d656e74266f726967696e3d687474702533412532462532463139322e3136382e302e31313026666c6f773d706f7075702673636f70653d7265616425334175736572
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Verificar ajuste para não pedir auth do Github no login ou corrigir problema do Auth do Github jogar para endereço localhost:
+    kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+    http://192.168.0.110/
+    <http://192.168.0.110/>
+
+- Verificar métodos de autenticação e avaliar alternativas.
+
+- Desfazer ajustes no config e código:
+    backstage/deploy-ambiente/deploy-local/docker-multi-stage/app-config.yaml
+    backstage/deploy-ambiente/deploy-local/docker-multi-stage/packages/app/src/App.tsx
+
+- Tratar warnings no Backstage:
+    kubectl logs -l app=backstage -n backstage
+
+    "entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"

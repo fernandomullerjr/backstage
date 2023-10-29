@@ -44,12 +44,7 @@ const app = createApp({
       <SignInPage
         {...props}
         auto
-        provider={{
-          id: 'github-auth-provider',
-          title: 'GitHub',
-          message: 'Sign in using GitHub',
-          apiRef: githubAuthApiRef,
-        }}
+        provider={githubProvider}
       />
     ),
   },
@@ -122,3 +117,13 @@ export default app.createRoot(
     </AppRouter>
   </>,
 );
+
+
+import { SignInProviderConfig } from '@backstage/core-components';
+
+const githubProvider: SignInProviderConfig = {
+  id: 'github-auth-provider',
+  title: 'GitHub',
+  message: 'Sign in using GitHub',
+  apiRef: githubAuthApiRef,
+};
