@@ -33,7 +33,12 @@ kubectl get ingress --namespace=backstage
 kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
 kubectl exec --namespace=backstage -ti backstage-6c949b9bc-m7jwv -- sh
 
+kubectl get pod -l app=backstage -n backstage
+kubectl describe pod -l app=backstage -n backstage
+kubectl logs -l app=backstage -n backstage
 
+
+kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
 
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -90,9 +95,8 @@ kubectl logs --namespace=backstage -f backstage-854df67b6c-fmvcz -c backstage
 
 kubectl apply -f backstage-service.yaml
 kubectl get services --namespace=backstage
-sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
-sudo kubectl port-forward --namespace=backstage svc/backstage 7007:7007
-sudo kubectl port-forward --namespace=backstage svc/backstage 80:80
+
+kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
 
 
 ## DESTROY
@@ -1126,3 +1130,42 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
 Sun 29 Oct 2023 12:07:24 AM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+
+
+kubectl port-forward --namespace=backstage svc/backstage 80:80
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl port-forward --namespace=backstage svc/backstage 80:80
+Forwarding from 127.0.0.1:80 -> 7007
+Forwarding from [::1]:80 -> 7007
+Handling connection for 80
+Handling connection for 80
+Handling connection for 80
+Handling connection for 80
+Handling connection for 80
+Handling connection for 80
+Handling connection for 80
+
+
+
+
+
+
+
+
+- Via browser local, não abre
+http://192.168.0.110/
+
+
+- Via browser da VM, abre:
+http://localhost
+
+
+
+
+
+
+
+
+
+kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
