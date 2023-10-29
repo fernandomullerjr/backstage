@@ -1224,5 +1224,77 @@ Sign in using GitHub
     "entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"
 
 - Verificar ajuste para não pedir auth do Github no login:
+    kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
     http://192.168.0.110/
     <http://192.168.0.110/>
+
+
+
+
+
+# ####################################################################################################################################################
+## Dia 29/10/2023
+
+
+- Verificar ajuste para não pedir auth do Github no login:
+    kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+    http://192.168.0.110/
+    <http://192.168.0.110/>
+
+
+
+https://backstage.spotify.com/learn/standing-up-backstage/configuring-backstage/7-authentication/
+<https://backstage.spotify.com/learn/standing-up-backstage/configuring-backstage/7-authentication/>
+
+Setting up authentication
+
+There are multiple authentication providers available for you to use with Backstage. For this tutorial we choose to use GitHub, a free service most of you might be familiar with, and even have an account on.
+Add a new app to GitHub
+
+Go to https://github.com/settings/applications/new to create your OAuth App.
+
+    Homepage URL should point to Backstage's frontend, in our tutorial it would be http://localhost:3000
+    Authorization callback URL should point to the auth backend, http://localhost:7007/api/auth/github/handler/frame
+
+
+
+Backstage OAuth App - 29-10-2023
+http://localhost
+http://localhost:7007/api/auth/github/handler/frame
+
+Generate a new Client Secret and take a note of the Client ID and the Client Secret.
+Add the credentials to the configuration
+
+Open app-config.local.yaml we've created earlier. Below the PostgreSQL configuration, add the below configuration and replace the values with the Client ID and the Client Secret from GitHub.
+
+
+
+Backstage OAuth App - 29-10-2023
+@fernandomullerjr
+
+fernandomullerjr owns this application.
+
+You can list your application in the GitHub Marketplace so that other users can discover it.
+0 users
+Client ID
+2f803cb7c05875659dd1
+
+
+
+
+
+
+
+
+Add the credentials to the configuration
+
+Open app-config.local.yaml we've created earlier. Below the PostgreSQL configuration, add the below configuration and replace the values with the Client ID and the Client Secret from GitHub.
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: YOUR CLIENT ID
+        clientSecret: YOUR CLIENT SECRET
