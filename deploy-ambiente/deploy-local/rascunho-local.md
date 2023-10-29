@@ -37,8 +37,9 @@ kubectl get pod -l app=backstage -n backstage
 kubectl describe pod -l app=backstage -n backstage
 kubectl logs -l app=backstage -n backstage
 
-
 kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+
+
 
 # ####################################################################################################################################################
 # ####################################################################################################################################################
@@ -857,7 +858,7 @@ kubectl get pods --namespace=backstage
 
 
 
-
+- Pods sendo evitados:
 
 
 ~~~~bash
@@ -1016,8 +1017,9 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 
 
 
+- Node com "NodeHasDiskPressure":
 
-
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl describe node debian10x64
 Name:               debian10x64
 Roles:              control-plane
@@ -1050,12 +1052,13 @@ Events:
   Warning  FreeDiskSpaceFailed    15m                     kubelet  Failed to garbage collect required amount of images. Attempted to free 5462772940 bytes, but only found 0 bytes eligible to free.
   Normal   NodeHasNoDiskPressure  9m42s (x32 over 6h18m)  kubelet  Node debian10x64 status is now: NodeHasNoDiskPressure
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+~~~~
 
 
 
+- Efetuada limpeza de disco.
 
-
-
+- Aplicando os manifestos novamente:
 
 cd /home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos
 
@@ -1072,8 +1075,9 @@ kubectl get pods --namespace=backstage
 
 
 
+- Pods normalizaram:
 
-
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods -A
 NAMESPACE     NAME                                  READY   STATUS    RESTARTS         AGE
 backstage     backstage-7b9f466556-jtwcs            1/1     Running   0                12s
@@ -1092,12 +1096,12 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
 Sun 29 Oct 2023 12:06:23 AM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+~~~~
 
 
 
 
-
-
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl get pods -n backstage
 NAME                         READY   STATUS    RESTARTS   AGE
 backstage-7b9f466556-jtwcs   1/1     Running   0          62s
@@ -1130,11 +1134,16 @@ root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/d
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# date
 Sun 29 Oct 2023 12:07:24 AM -03
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+~~~~
+
+
+
 
 
 
 kubectl port-forward --namespace=backstage svc/backstage 80:80
 
+~~~~bash
 root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl port-forward --namespace=backstage svc/backstage 80:80
 Forwarding from 127.0.0.1:80 -> 7007
 Forwarding from [::1]:80 -> 7007
@@ -1145,11 +1154,29 @@ Handling connection for 80
 Handling connection for 80
 Handling connection for 80
 Handling connection for 80
+~~~~
 
 
 
 
+- Warnings nos logs do Backstage:
 
+~~~~bash
+
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos# kubectl logs -l app=backstage -n backstage
+{"level":"info","message":"127.0.0.1 - - [29/Oct/2023:03:19:40 +0000] \"GET /static/vendor.90890aa5.js HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"127.0.0.1 - - [29/Oct/2023:03:19:40 +0000] \"GET /api/auth/github/refresh?optional&env=development HTTP/1.1\" 404 202 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"127.0.0.1 - - [29/Oct/2023:03:19:40 +0000] \"GET /apple-touch-icon.png HTTP/1.1\" 200 12619 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0\"","service":"backstage","type":"incomingRequest"}
+{"level":"info","message":"127.0.0.1 - - [29/Oct/2023:03:19:40 +0000] \"GET /favicon-32x32.png HTTP/1.1\" 200 1686 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0\"","service":"backstage","type":"incomingRequest"}
+{"entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-0ca6551527608b8e42ccccd463f27d4113d35ff1","level":"warn","location":"file:/examples/org.yaml","message":"file /examples/org.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-eeed3503740b7c4b80f2aad3e417fafee7a3803d","level":"warn","location":"file:/examples/entities.yaml","message":"file /examples/entities.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-0ca6551527608b8e42ccccd463f27d4113d35ff1","level":"warn","location":"file:/examples/org.yaml","message":"file /examples/org.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+{"entity":"location:default/generated-eeed3503740b7c4b80f2aad3e417fafee7a3803d","level":"warn","location":"file:/examples/entities.yaml","message":"file /examples/entities.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"}
+root@debian10x64:/home/fernando/cursos/idp-devportal/backstage/deploy-ambiente/deploy-local/manifestos#
+
+~~~~
 
 
 
@@ -1165,7 +1192,37 @@ http://localhost
 
 
 
-
-
+- Ao modificar o port-forward, passou a escutar em todos os ips:
 
 kubectl port-forward --address 0.0.0.0 --namespace=backstage svc/backstage 80:80
+
+
+- Acessível:
+http://192.168.0.110/
+
+GitHub
+
+Sign in using GitHub
+
+
+
+
+
+
+
+
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+# ####################################################################################################################################################
+## PENDENTE
+
+- Tratar warnings no Backstage:
+    kubectl logs -l app=backstage -n backstage
+
+    "entity":"location:default/generated-c4d4a3f82d0b7ecef1bd7d6a1991be94fded46aa","level":"warn","location":"file:/examples/template/template.yaml","message":"file /examples/template/template.yaml does not exist","plugin":"catalog","service":"backstage","type":"plugin"
+
+- Verificar ajuste para não pedir auth do Github no login:
+    http://192.168.0.110/
+    <http://192.168.0.110/>
